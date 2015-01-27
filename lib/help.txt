@@ -1,0 +1,50 @@
+
+SugarRestHarness
+
+Execute an arbitrary REST call against a SugarCRM instance.
+
+Usage: 
+SugarRestHarness -h (display this help message)
+SugarRestHarness -j path/to/job/file.php [--<longoption>=<value>] (run specified job)
+
+Most options from the config file, job config params and the RestConnector classes can be overriden with long form options.
+
+Common Options:
+--configFileName=<filename.php> (Note: all config files must be in config/ or custom/config. New config files should be added in custom/config)
+
+Config File Options:
+--userid=<sugar_user_id>
+--password=<password>
+--base_url=<http://domain or ip address>
+--install_path=<path_to_sugar_instance>
+--rest_dir=<rest_path, i.e. /rest>
+--rest_version_dir=<version dir, i.e. /v10>
+--jobs_dir=</full/path/to/your/Jobs/parent/directory (not including /Jobs)>
+--client_platform=<platform name, i.e. mobile>
+--client_id=<sugar for core, sc_web for salesconnect>
+--client_app_version=<version number, i.e. 2.3.1>
+--mode=dev|test
+
+Common Job Config Options:
+--module=<module_name>
+--bean_id=<sugarbean_id>
+--fields=<comma-delimited list of fields>
+--post=<post.first_name=Mike>
+--term=<string to search for>
+--max_num=<integer>
+--my_items=<0|1>
+--favorites=<0|1>
+--linkedModule=<module_name>
+--verbose=<0|1>
+--order_by=<sugarbean field name>
+--sort_order=<asc|desc>
+--id_field=<sugarbean field name>
+--linkedBean_id=<sugarbean_id>
+--filters=<url_encoded_filters_string>
+--filter_json=<JSON encoded filters string>
+--view=<view_name>
+--routeMap=<name of route map>
+--route=<REST route, i.e. /Contacts/contact6>
+--url=<full url for REST request>
+
+
