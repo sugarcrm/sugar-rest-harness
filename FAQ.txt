@@ -1,0 +1,96 @@
+- What is the SugarRestHarness?
+  The SugarRestHarness is a command line tool for sending REST requests to a SugarCRM
+  installation and displaying the results back to you. It can be configured to send
+  any valid REST request to any Sugar installation as any user. Multiple output
+  formats are available and more are easy to add. Configurations for your REST 
+  requests are stored in job files for easy retrieval, and can easily be overwritten
+  at run time on the command line.
+
+
+- Why wouldn't I just use Postman in Chrome?
+  If you're happy and productive with Postman, by all means keep using it. 
+  However, the Harness does have a few things going for it:
+  a) It automatically gets your OAuth2 token so you don't have to.
+  b) It can send multiple requests in one run, and pass the results of any given
+     request to any subsequent job.
+  c) Once you've created a job file, running it is much faster than setting up Postman.
+  d) It's built specifically for Sugar from the ground up.
+
+  
+- OK, it doesn't sound too bad. How do I user the SugarRestHarness?
+  1) Get it.
+  2) Configure it.
+  3) Run it.
+
+
+- How do I get it?  
+  The SRH lives in our salesconnect repo, at ibm/SugarRestHarness. So you already 
+  have it. You can also clone from git:
+  You can also copy it from ibm/SugarRestHarness to a separate directory on your VM
+  if you want to make modifications but don't want to commit them to git.
+
+
+- How do I configure it?
+  1) Copy config/job.basic.config.php into custom/config/job.basic.config.php
+  2) Edit the custom/ copy for your server's details. 
+  3) Save your custom/ copy.
+  
+  You should be good to go. 
+  
+  NOTE: you can override anything you set as config option
+  in your config file or in job files (see below) on the command line. For example,
+  --userid=fh-level0user0 --password=fh-level0user0 will change the user you log in
+  as while using the harness.
+  
+  NOTE: You can have more than one config file, to support multiple servers and/or
+  multiple users on those server. You can specify which one you want on
+  the command line: --configFileName=my.special.config.php. 
+
+
+- How do I run it?
+  You do this:
+  SugarRestHarness -j Jobs/Contacts/ContactsList.php 
+  the -j option is required, and accepts any path to a Job file.
+  You can also get help:
+  SugarRestHarness -h
+
+
+- What are job files and where are they?
+  Job files specify the details of any given REST request. They're 
+  located in the Jobs/ directory. Typically, they  only set values for the config 
+  and optionally the expectations properties. There should be lots of examples of
+  Job files, feel free to copy/paste jobs. You can commit them if you think they'll
+  be useful to others.
+
+
+- What can I expect from expectations?
+  In your job file, the expectations property lists what you expect to see in the
+  results from your REST request. You set your expectations with dot (.) delimited
+  names. So for example, if you're expecting the returned data to have an id of
+  'contact0', you can set that expectation like this:
+  
+  $this->expectations['result.id'] = 'contact0';
+  
+  When your job's results are parsed by the harness, the expectations you set
+  in your job will be compared to what was actually returned in your request. If
+  any of them are wrong, you'll see that mentioned in your output.
+
+  
+- What if I want to run more than one job?
+  There are two ways you can do that:
+  1) You can run every job in a directory by setting the -j option to that directory,
+  i.e. -j Jobs/Examples/Tests
+  NOTE: when run in this manner, data from one job cannot be passed to subsequent jobs.
+  
+  2) You can use a JobSeries - a class that runs multiple jobs in sequence. The 
+  big advantage to a JobSeries is the ability to transfer data from the results
+  of one job to the config options of any subsequent job.
+
+
+- Your SugarRestHarness doesn't support (fill in your desired route/feature).
+- I think I found a bug.
+- I need some support for this thing.
+- Your Harness sucks.
+- You suck.
+  All such inquires may be directed to mandersen@sugarcrm.com. Except for the last one.
+
