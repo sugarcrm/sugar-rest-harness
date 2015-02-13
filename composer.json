@@ -1,0 +1,12 @@
+{
+    "name" : "sugarcrm/sugar-rest-harness",
+    "description" : "",
+    "type" : "project",
+    "license" : "proprietary",
+    "homepage" : "http://www.sugarcrm.com",
+    "support": {
+        "wiki" : "http://support.sugarcrm.com",
+        "forum": "https://community.sugarcrm.com/sugarcrm",
+        "irc": "irc://irc.freenode.org/sugarcrm"
+    }
+}
