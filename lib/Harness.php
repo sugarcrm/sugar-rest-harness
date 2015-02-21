@@ -311,7 +311,7 @@ class Harness
         
         if (!$this->login()) {
             $this->connector->report();
-            die("Harness::login failure - could not login as {$this->config['userid']} on {$this->config['base_url']}/{$this->config['install_path']}\n");
+            die("Harness::login failure - could not login as {$this->config['user_name']} on {$this->config['base_url']}/{$this->config['install_path']}\n");
         }
         
         $jobClasses = $this->getJobClassList();

@@ -29,6 +29,7 @@ abstract class JobSeries implements JobInterface
 {
     public $results = array();
     public $options = array();
+    public $config = null;
     
     /**
      * __construct()
@@ -37,6 +38,7 @@ abstract class JobSeries implements JobInterface
      */
     public function __construct($options)
     {
+        $this->config = \SugarRestHarness\Config::getInstance()->getHarnessConfig();
         $this->processOptions($options);
     }
     
@@ -54,7 +56,7 @@ abstract class JobSeries implements JobInterface
      */
     public function processOptions(array $options)
     {
-        $this->options = $options;
+        $this->options = \SugarRestHarness\Config::getInstance()->mergeWithJobConfig($this->config, $options);
     }
     
     
@@ -85,13 +87,13 @@ abstract class JobSeries implements JobInterface
     
     /**
      * clearOptions()
-     *
-     * Sets the options array to an empty array, effectively deleting and previously
-     * set options.
+     * 
+     * Resets the options array to be only the original values from the harness, effectively
+     * clearing away any job-specific options.
      */
     public function clearOptions()
     {
-        $this->options = array();
+        $this->options = \SugarRestHarness\Config::getInstance()->getHarnessConfig();
     }
     
     

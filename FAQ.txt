@@ -39,7 +39,7 @@
   
   NOTE: you can override anything you set as config option
   in your config file or in job files (see below) on the command line. For example,
-  --userid=fh-level0user0 --password=fh-level0user0 will change the user you log in
+  --user_name=fh-level0user0 --password=fh-level0user0 will change the user you log in
   as while using the harness.
   
   NOTE: You can have more than one config file, to support multiple servers and/or

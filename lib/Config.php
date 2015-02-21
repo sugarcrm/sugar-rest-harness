@@ -199,7 +199,7 @@ class Config
             $option = &$this->commandLineOptions;
             
             if (strpos($optPair, '=') !== false) {
-                list($optName, $optValue) = explode('=', $optPair);
+                list($optName, $optValue) = explode('=', $optPair, 2);
             } elseif (strpos($optPair, ' ') !== false) {
                 list($optName, $optValue) = explode(' ', $optPair);
             } else {
@@ -277,8 +277,8 @@ class Config
         
         $this->processArgv();
         $this->importConfigFile($this->getConfigFileName());
-        $configParams = array_merge($this->configFileOptions, $jobConfigHash);
-        $configParams = array_merge($configParams, $this->commandLineOptions);
+        $configParams = $this->merge($this->configFileOptions, $jobConfigHash);
+        $configParams = $this->merge($configParams, $this->commandLineOptions);
         return $configParams;
     }
     
@@ -296,8 +296,9 @@ class Config
      */
     public function mergeWithJobConfig($jobConfigHash, $additionalConfig)
     {
+        $jobConfigHash = $this->getJobConfig($jobConfigHash);
         $mergedConfig = $this->merge($jobConfigHash, $additionalConfig);
-        return $this->getJobConfig($mergedConfig);
+        return $mergedConfig;
     }
     
     
@@ -336,7 +337,6 @@ class Config
                 }
             }
         }
-        
         return $returnArray;
     }
     
