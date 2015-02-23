@@ -13,7 +13,7 @@ Common Options:
 --configFileName=<filename.php> (Note: all config files must be in config/ or custom/config. New config files should be added in custom/config)
 
 Config File Options:
---userid=<sugar_user_id>
+--user_name=<sugar_user_id>
 --password=<password>
 --base_url=<http://domain or ip address>
 --install_path=<path_to_sugar_instance>
@@ -29,7 +29,8 @@ Common Job Config Options:
 --module=<module_name>
 --bean_id=<sugarbean_id>
 --fields=<comma-delimited list of fields>
---post=<post.first_name=Mike>
+--post='<json string>'
+--post.<field_name>=<value> (i.e. post.first_name=Mike)
 --term=<string to search for>
 --max_num=<integer>
 --my_items=<0|1>

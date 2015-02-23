@@ -15,7 +15,7 @@ class RestConnector
 {
     private $token = false;
     public $requiredConfigFields = array(
-        'userid',
+        'user_name',
         'password',
         'base_url', // i.e. http://yavin4
         'install_path', // i.e. /46102/ult/sugarcrm
@@ -52,7 +52,7 @@ class RestConnector
     public $fields;
     public $post;
     public $term;
-    public $userid;
+    public $user_name;
     public $password;
     public $base_url;
     public $install_path;
@@ -273,8 +273,8 @@ class RestConnector
     public function getURL($route, $qs = array())
     {
         if (IsSet($this->url)) {
-            $this->msg("REST Service URL is $url");
-            return $url;
+            $this->msg("REST Service URL is {$this->url}");
+            return $this->url;
         }
         
         if (empty($route)) {
@@ -521,7 +521,7 @@ class RestConnector
     {
         $data = new \stdClass();
         $data->grant_type = 'password';
-        $data->username = $this->userid;
+        $data->username = $this->user_name;
         $data->password = $this->password;
         $data->client_id = $this->client_id;
         $data->platform = $this->client_platform;
@@ -689,7 +689,7 @@ class RestConnector
     public function getToken()
     {
         $url = $this->getURL('/oauth2/token', false);
-        $this->msg("getting token from $url for {$this->userid}");
+        $this->msg("getting token from $url for {$this->user_name}");
         $data = $this->getTokenPostData();
         $ch = $this->getCURLHandleForPOST($url, $data);
         curl_setopt($ch, CURLOPT_VERBOSE, false);

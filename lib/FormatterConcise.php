@@ -2,9 +2,10 @@
 namespace SugarRestHarness;
 
 /**
- * FormatterRaw
+ * FormatterConcise
  *
- * This class only outputs the raw json text returned by the REST request for each job.
+ * This class only outputs 'concise' results: only the return code, errors, and failed
+ * expectations.
  */
 class FormatterConcise extends FormatterBase implements FormatterInterface
 {
@@ -17,8 +18,9 @@ class FormatterConcise extends FormatterBase implements FormatterInterface
     /**
      * format()
      *
-     * For each job in the repository, it will output the id of the job and the raw
-     * results, unformatted JSON, which is what the REST request returns.
+     * For each job in the repository, it will output the id of the job, the return code,
+     * 'Success' if the job succeeded (sent a request and received any response) or 'Failed'.
+     * It will also output any error messages or failed expectations.
      *
      * @return string - json string from job(s) results
      */
