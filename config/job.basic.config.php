@@ -1,6 +1,6 @@
 <?php
 $config = array(
-    'userid' => 'admin',              // sugar user_name
+    'user_name' => 'admin',              // sugar user_name
     'password' => 'asdf',             // sugar user pass
     'base_url' => 'http://hoth',      // protocol + domain/i.p. address
     'install_path' => '/sc/ult',      // path to sugar install.
