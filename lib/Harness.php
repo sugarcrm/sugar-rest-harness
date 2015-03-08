@@ -2,6 +2,7 @@
 namespace SugarRestHarness;
 use SugarRestHarness;
 
+require_once("lib/Exceptions.php");
 /**
  * Harness
  *
@@ -58,6 +59,8 @@ class Harness
                 die("Harness::autoload failure - $className not defined in $classPath\n");
             }
         } else {
+            /*
+            This was a dev-debugging tool - should be replaced with exceptions.
             $bt = debug_backtrace();
             foreach ($bt as $t) {
                 if (!IsSet($t['file']) || empty($t['file'])) {$t['file'] = '';}
@@ -67,6 +70,7 @@ class Harness
                 print("\n{$t['file']}:{$t['line']} {$t['class']}->{$t['function']}(" . var_export($t['args'], true) . ")");
             }
             die("Harness::autoload failure - $classPath not found while trying to instantiate $className\n");
+            */
         }
         return true;
     }
@@ -89,28 +93,24 @@ class Harness
     public function verifyClassFile($classFilePath)
     {
         if (pathinfo($classFilePath, PATHINFO_EXTENSION) != 'php') {
-            print("'$classFilePath' does not have a .php extension\n");
-            return false;
+            throw new NotAPHPFile($classFilePath);
         }
         
         if (!is_file($classFilePath)) {
-            print("'$classFilePath' is not a file!\n");
-            return false;
+            throw new NotAFile($classFilePath);
         }
         
         $classRelativePath = $this->getRelativeClassPath($classFilePath);
         $className = self::getNamespacedClassName($classRelativePath);
         require_once($classFilePath);
         
-        if (!class_exists($className)) {
-            print("'$className' is not a defined class!\n");
-            return false;
+        if (!class_exists($className, false)) {
+            throw new MissingJobClass($className, $classFilePath);
         }
         
         $interfaces = class_implements($className, true); // second arg must be true!
         if (!in_array('SugarRestHarness\\JobInterface', $interfaces)) {
-            print("'$className' does not implement SugarRestHarness\JobInterface\n");
-            return false;
+            throw new DoesNotImplementJobInterface($className, $classFilePath);
         }
         
         return true;
@@ -158,8 +158,13 @@ class Harness
                 $this->getJobClassList("{$absolutePath}{$entry}");
             }
         } else {
-            if ($this->verifyClassFile($absolutePath)) {
-                $this->jobClasses[$absolutePath] = self::getNamespacedClassName($this->getRelativeClassPath($absolutePath));
+            try {
+                if ($this->verifyClassFile($absolutePath)) {
+                    $this->jobClasses[$absolutePath] = self::getNamespacedClassName($this->getRelativeClassPath($absolutePath));
+                }
+            } catch (\SugarRestHarness\Exception $e) {
+                $e->output();
+                return array();
             }
         }
         
@@ -284,8 +289,14 @@ class Harness
      * @return bool - true if we got a login token, false if not.
      */
     public function login()
-    {        
-        $this->config['token'] = $this->connector->getToken();
+    {   
+        try {
+            $this->config['token'] = $this->connector->getToken();
+        } catch (\SugarRestHarness\Exception $e) {
+            $e->output();
+            die();
+        }
+        
         return !empty($this->config['token']);
     }
     
@@ -309,10 +320,7 @@ class Harness
             die("Harness::exec failure - Usage: rest.php -j path/to/JobClassFile.php\n");
         }
         
-        if (!$this->login()) {
-            $this->connector->report();
-            die("Harness::login failure - could not login as {$this->config['user_name']} on {$this->config['base_url']}/{$this->config['install_path']}\n");
-        }
+        $this->login();
         
         $jobClasses = $this->getJobClassList();
         $formatter = $this->formatterFactory(count($jobClasses));
