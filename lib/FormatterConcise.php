@@ -27,7 +27,7 @@ class FormatterConcise extends FormatterBase implements FormatterInterface
     public function format()
     {
         $results = $this->repository->getResults();
-        
+        $resultsStrings = array();
         foreach ($results as $result) {
             $parts = array();
             $success = $result->connector->httpReturn['HTTP Return Code'] == '200' ? 'Success' : 'Failed';
