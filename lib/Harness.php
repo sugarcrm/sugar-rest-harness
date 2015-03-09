@@ -328,6 +328,11 @@ class Harness
         foreach ($jobClasses as $classFilePath => $namespacedClassName) {
             $this->job = new $namespacedClassName($this->config);
             $this->job->run();
+            
+            if (IsSet($this->config['w'])) {
+                $writer = new \SugarRestHarness\JobWriter($this->job);
+                $writer->createJobFile();
+            }
         }
         
         return $formatter->format();

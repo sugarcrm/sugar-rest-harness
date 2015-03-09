@@ -146,3 +146,36 @@ class LoginFailure extends \SugarRestHarness\Exception
         parent::__construct($msg);
     }
 }
+
+
+class CannotWriteToDirectory extends \SugarRestHarness\Exception
+{
+    public function __construct($fileName)
+    {
+        $msg = "JobWriter could not open '$fileName' for writing, it appears to be a directory.";
+        parent::__construct($msg);
+    }
+}
+
+
+class CannotWriteToFile extends \SugarRestHarness\Exception
+{
+    public function __construct($fileName)
+    {
+        $msg = "JobWriter could not open '$fileName' for writing.";
+        parent::__construct($msg);
+    }
+}
+
+
+
+class WriteToFileFailed extends \SugarRestHarness\Exception
+{
+    public function __construct($fileName)
+    {
+        $msg = "JobWriter was able to open '$fileName' but could not write to it.";
+        parent::__construct($msg);
+    }
+}
+
+
