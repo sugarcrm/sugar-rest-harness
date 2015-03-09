@@ -5,7 +5,7 @@ Execute an arbitrary REST call against a SugarCRM instance.
 
 Usage: 
 SugarRestHarness -h (display this help message)
-SugarRestHarness -j path/to/job/file.php [--<longoption>=<value>] (run specified job)
+SugarRestHarness -j path/to/job/file.php [--<longoption>=<value>] [-w<=ClassName>](run specified job)
 
 Most options from the config file, job config params and the RestConnector classes can be overriden with long form options.
 
@@ -48,4 +48,6 @@ Common Job Config Options:
 --route=<REST route, i.e. /Contacts/contact6>
 --url=<full url for REST request>
 
-
+JobWriter option
+-w writes a new job file based on the job you ran, with a random file/class name.
+-w=<className> writes a new job file named <className>.php based on the job you ran.

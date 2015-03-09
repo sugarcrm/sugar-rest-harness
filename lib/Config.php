@@ -23,7 +23,7 @@ class Config
     public $defaultConfigFileName = 'job.basic.config.php';
     
     /** @var string short commmand line options */
-    public $shortOptions = "hj:";
+    public $shortOptions = "w:hj:";
     
     /** @var array long command line options i.e. --long_option=somevalue */
     public $longOptions = array();
@@ -202,6 +202,9 @@ class Config
                 list($optName, $optValue) = explode('=', $optPair, 2);
             } elseif (strpos($optPair, ' ') !== false) {
                 list($optName, $optValue) = explode(' ', $optPair);
+            } elseif ($optPair == '-w' && !IsSet($this->commandLineOptions['w'])) {
+                $optName = 'w';
+                $optValue = false;
             } else {
                 continue;
             }
@@ -330,7 +333,7 @@ class Config
             if (!IsSet($baseArray[$index])) {
                 $returnArray[$index] = $value;
             } else {
-                if (is_array($baseArray[$index]) && is_array($overwriterArray[$index])) {
+                if (is_array($baseArray[$index]) && is_array($overwriterArray[$index]) && $this->isHash($overwriterArray[$index])) {
                     $returnArray[$index] = $this->merge($baseArray[$index], $overwriterArray[$index]);
                 } else {
                     $returnArray[$index] = $overwriterArray[$index];
@@ -338,6 +341,12 @@ class Config
             }
         }
         return $returnArray;
+    }
+    
+    
+    public function isHash($array)
+    {
+        return array_keys($array) !== range(0, count($array) - 1);
     }
     
     
