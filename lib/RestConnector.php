@@ -348,8 +348,7 @@ class RestConnector
             }
             
         } else {
-            $this->error("Your job {$this->jobClass} does not define a route or a routeMap config property. Please add one of those to your job.");
-            return '';
+            throw new MissingRouteMap();
         }
     }
     
@@ -372,8 +371,7 @@ class RestConnector
             return $this->routeMaps[$this->routeMap][0];
         }
         
-        $this->error("You must either set a valid routeMap or a route and a method in your job config.");
-        return '';
+        throw new NoMethodSet();
     }
     
     
@@ -704,7 +702,12 @@ class RestConnector
             return $hash->access_token;
         } else {
             $this->error("Did not receive an access token from OAuth2 request! Bad password?");
-            var_export($hash);
+            foreach ($hash as $index => $msg) {
+                $this->error("$index: $msg");
+            }
+            
+            $errorData = array($this->msgs, $this->errors, $this->httpReturn);
+            throw new LoginFailure($this->user_name, $url, $errorData);
             return '';
         }
     }
@@ -738,45 +741,30 @@ class RestConnector
     {
         $qs = $this->buildQueryString();
         
-        $url = $this->getURL($this->getRoute(), $qs);
-        if (empty($url)) {
-            $this->error("Cannot make a request without a url, route or routeMap set in config.");
+        try {
+            $url = $this->getURL($this->getRoute(), $qs);
+        } catch (\SugarRestHarness\Exception $e) {
+            $e->output();
             return false;
         }
         
-        $method = $this->getMethod();
-        if (empty($method)) {
+        try {
+            $method = $this->getMethod();
+        } catch (\SugarRestHarness\Exception $e) {
+            $e->output();
             $this->error("Cannot make a request without a method set in config.");
             return false;
         }
-        return $this->sendRequest($url, $method, $this->post);
-    }
-    
-    
-    
-    /**
-     * queryModuleWithFilter()
-     *
-     * @return string - the results of your REST request.
-     */
-    public function queryModuleWithFilter()
-    {
-        $this->msg("List {$this->module}/filter beans.");
-        $fields = $this->formatFields($this->fields);
-        $qs = array(
-            'fields' => $fields,
-            'max_num' => $this->max_num,
-            'my_items' => $this->my_items,
-            'favorites' => $this->favorites,
-            //'filter' => $this->filters
-        );
         
-        if (!empty($this->order_by)) {
-            $qs['order_by'] = "{$this->order_by}:{$this->sort_order}";
+        try {
+            return $this->sendRequest($url, $method, $this->post);
+        } catch (\SugarRestHarness\Exception $e) {
+            $e->output();
+            return false;
         }
-        $url = $this->getURL("/{$this->module}/filter", $qs) . "&{$this->filters}";
-        return $this->sendRequest($url, 'GET');
+        
     }
+    
     
     
     /**
@@ -841,6 +829,10 @@ class RestConnector
             $results = curl_exec($ch);
             $this->collecthttpReturn($ch);
             curl_close($ch);
+            if ($this->httpReturn['HTTP Return Code'] != '200') {
+                var_export($results);
+                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code']);
+            }
             return $results;
         } else {
             $this->error("Cannot get a curl object from PHP!");

@@ -19,7 +19,7 @@ class FormatterRaw extends FormatterBase implements FormatterInterface
     public function format()
     {
         $results = $this->repository->getResults();
-        
+        $resultsStrings = array();
         foreach ($results as $result) {
             $resultsStrings[] = "\n{$result->id}\n";
             if (IsSet($this->config['pretty']) && $this->config['pretty']) {
