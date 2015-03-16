@@ -7,9 +7,9 @@ class Metadata extends \SugarRestHarness\JobAbstract implements \SugarRestHarnes
     {
         $this->config['routeMap'] = 'allMetadata';
         $this->config['module'] = 'Metadata';
-        $this->config['type_filter'] = 'modules';
-        $this->config['module_filter'] = 'Tasks';
-        $this->config['platform'] = 'mobile';
+        $this->config['qs']['type_filter'] = 'modules';
+        $this->config['qs']['module_filter'] = 'Tasks';
+        $this->config['qs']['platform'] = 'mobile';
         parent::__construct($options);
     }
 }
