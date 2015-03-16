@@ -7,7 +7,7 @@ class ContactsList extends \SugarRestHarness\JobAbstract implements \SugarRestHa
     {
         $this->config['routeMap'] = 'list';
         $this->config['module'] = 'Contacts';
-        $this->config['fields'] = array('first_name', 'last_name', 'email1', 'phone_work');
+        $this->config['qs']['fields'] = array('first_name', 'last_name', 'email1', 'phone_work');
         parent::__construct($options);
     }
 }

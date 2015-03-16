@@ -70,7 +70,7 @@ class RestConnector
     public $configFileName;
     public $order_by = '';
     public $sort_order = 'asc';
-    public $qs_pairs = array();
+    public $qs = array();
     public $id_field = '';
     public $linkedBean_id = '';
     public $prefName = '';
@@ -264,13 +264,11 @@ class RestConnector
      
      * returns the url for the rest service we're trying to contact.
      *
-     * @param string $path - the route - the last part of the rest path, after the base_url, 
+     * @param string $route - the route - the last part of the rest path, after the base_url, 
      *  install_path, rest_dir and rest_version_dir.
-     * @param mixed $qs - the query string, as name/value pairs. If boolean false is
-     *  passed in, no query string will be appended.
      * @return string - a full URL for the REST service.
      */
-    public function getURL($route, $qs = array())
+    public function getURL($route)
     {
         if (IsSet($this->url)) {
             $this->msg("REST Service URL is {$this->url}");
@@ -291,11 +289,7 @@ class RestConnector
         );
         $url = implode('', $urlPieces);
         
-        if ($qs !== false) {
-            $queryString = $this->buildQueryString($qs);
-        } else {
-            $queryString = '';
-        }
+        $queryString = $this->buildQueryString();
         
         if (!empty($queryString)) {
             $url .= "?$queryString"; 
@@ -382,33 +376,22 @@ class RestConnector
      * params in config and adds them to an array, with urlencoded values, and then
      * concatenates the array with amperands (&).
      *
-     * @param mixed string or array $additionalParams - config var to add to the list
-     *   of vars to loop over.
      * @return string - a urlencoded query string.
      */
-    public function buildQueryString($additionalParams = '')
+    public function buildQueryString()
     {
-        if (!is_array($additionalParams)) {
-            $additionalParams = array($additionalParams);
-        }
-        
-        $this->queryStringConfigVars = array_unique(array_merge($this->queryStringConfigVars, $additionalParams));
         $qsPairs = array();
-        foreach ($this->queryStringConfigVars as $varName) {
-            if (!IsSet($this->$varName) || empty($this->$varName)) {
-                continue;
-            }
-            
+        foreach ($this->qs as $varName => $value) {
             switch($varName) {
                 case 'fields':
-                    $value = $this->formatFields($this->$varName);
+                    $value = $this->formatFields($value);
                     break;
                     
                 case 'filters':
-                    if (is_string($this->$varName)) {
-                        $filters = explode('&', $this->$varName);
+                    if (is_string($value)) {
+                        $filters = explode('&', $value);
                     } else {
-                        $filters = $this->$varName;
+                        $filters = $value;
                     }
                     foreach ($filters as $filter) {
                         $qsPairs[] = $filter;
@@ -416,29 +399,26 @@ class RestConnector
                     break;
                 
                 case 'filter_json':
-                    $filters = $this->formatFilters($this->$varName);
+                    $filters = $this->formatFilters($value);
                     foreach ($filters as $filterParams => $filterValue) {
                         $qsPairs[] = "{$filterParams}={$filterValue}";
                     }
                     break;
                     
                 case 'order_by':
-                    $value = urlencode("{$this->order_by}:{$this->sort_order}");
+                    $sort_order = IsSet($this->qs['sort_order']) ? ':' . $this->qs['sort_order'] : '';
+                    $value = urlencode("{$value}{$sort_order}");
                     break;
                     
                 case 'term':
                 case 'q':
-                    $value = urlencode($this->$varName);
+                    $value = urlencode($value);
                     $varName = 'q';
                     break;
                     
                 default:
-                    $value = urlencode($this->$varName);
+                    $value = urlencode($value);
                     break;
-            }
-            
-            if (empty($varName) || empty($value)) {
-                continue;
             }
             
             // filters has been handled above, and should not be re-added.
@@ -686,7 +666,7 @@ class RestConnector
      */
     public function getToken()
     {
-        $url = $this->getURL('/oauth2/token', false);
+        $url = $this->getURL('/oauth2/token');
         $this->msg("getting token from $url for {$this->user_name}");
         $data = $this->getTokenPostData();
         $ch = $this->getCURLHandleForPOST($url, $data);
@@ -739,10 +719,8 @@ class RestConnector
      */
     public function makeRequest()
     {
-        $qs = $this->buildQueryString();
-        
         try {
-            $url = $this->getURL($this->getRoute(), $qs);
+            $url = $this->getURL($this->getRoute());
         } catch (\SugarRestHarness\Exception $e) {
             $e->output();
             return false;
