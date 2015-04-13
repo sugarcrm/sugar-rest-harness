@@ -242,13 +242,17 @@ class Config
      * If post is passed in via command line as a JSON string, we want to decode that
      * into a hash. Otherwise, we want to keep the raw string passed in.
      *
+     * NOTE: the string must be decoded to produce an associative array, NOT
+     * standard class objects, to be consistent with the expectations that all
+     * job config data is associative arrays.
+     *
      * @param string $postString - a (possibly) JSON-encoded string.
      * @return mixed - either the variable described the the JSON or whatever POST was
      *  set to on the command line.
      */
     public function decodeJSONPost($postString)
     {
-        $post = json_decode($postString);
+        $post = json_decode($postString, true);
         if ($post != null) {
             return $post;
         } else {
