@@ -218,7 +218,11 @@ class RestConnector
      * @return string - a delimited list of fields.
      */
     public function formatFields($fields)
-    {        
+    {
+        if (!is_array($fields)) {
+            $fields = array($fields);
+        }
+        
         $fieldsString = '';
         if (!empty($fields)) {
             $fields = implode(',', $fields);
