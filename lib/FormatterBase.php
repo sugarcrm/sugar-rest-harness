@@ -17,6 +17,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
         'HTTP Data' => 'formatHTTPReturn',
         'Harness Messages' => 'formatHarnessMessages',
         'Harness Errors' => 'formatHarnessErrors',
+        'Exceptions' => 'formatExceptions',
         'Returned Data' => 'formatResults',
         'Expectations' => 'formatExpecationResults',
     );
@@ -148,6 +149,29 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
         foreach ($jobObj->connector->httpReturn as $name => $value) {
             $formatted .= "$name: $value\n";
         }
+        return $formatted;
+    }
+    
+    
+    /**
+     * formatExceptions()
+     *
+     * Formats the output from any exceptions on this job.
+     *
+     * @param JobAbstract $jobObj - a JobAbstract object
+     * @return string - a formatted string
+     */
+    public function formatExceptions(JobAbstract $jobObj)
+    {
+        $formatted = '';
+        if (count($jobObj->exceptions) == 0) {
+            return $formatted;
+        }
+        
+        foreach ($jobObj->exceptions as $e) {
+            $formatted .= $e->getFormattedOutput();
+        }
+        
         return $formatted;
     }
     

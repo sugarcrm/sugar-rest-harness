@@ -22,9 +22,11 @@ abstract class JobAbstract implements JobInterface
     public $results = array();
     public $resultIndex = false;
     public $id = '';
+    public $expectationsEngine = null;
     public $expectations = array();
     public $expectationsDeltas = array();
     public $allExpectationsMet = true;
+    public $exceptions = array();
     
     
     /**
@@ -54,8 +56,9 @@ abstract class JobAbstract implements JobInterface
         if (!empty($this->config['verbose'])) {
             $this->connector->verbose($this->config['verbose']);
         }
-        $this->expectations['connector.httpReturn.HTTP Return Code'] = '200';
-        $this->expectations['connector.errors'] = array();
+        $this->expectationsEngine = new ExpectationsEngine($this);
+        $this->expectations['connector.httpReturn.HTTP Return Code']['equals'] = '200';
+        $this->expectations['connector.errors']['count'] = 0;
     }
     
     
@@ -85,13 +88,18 @@ abstract class JobAbstract implements JobInterface
      */
     public function run()
     {
-        $this->rawResults = $this->connector->makeRequest();
+        try {
+            $this->rawResults = $this->connector->makeRequest();
+        } catch (\SugarRestHarness\Exception $e) {
+            $this->storeException($e);
+        }
+        
         $this->results = json_decode($this->rawResults);
         
         if (!is_object($this->results)) {
             $this->results = array();
         }
-        $this->compareActualToExpected();
+        $this->expectationsEngine->compareActualToExpected();
         $this->storeJob();
     }
      
@@ -136,35 +144,25 @@ abstract class JobAbstract implements JobInterface
     
     
     /**
-     * compareActualToExpected()
+     * addExpectationDelta()
      *
-     * Runs through all of the expectations set in the job, and compares the values
-     * set in the expectations to what is in the actual result.
+     * Adds an entry to the expectationDeltas array.
      *
-     * @return bool - true if all expectations are met
+     * @param bool $expectationMet - true for an expectation that matched actual 
+     *  results, false otherwise.
+     * @param string $msg - a message describing the expectation results.
      */
-    public function compareActualToExpected()
+    public function addExpectationDelta($expectationMet, $msg)
     {
-        foreach ($this->expectations as $expectedPropName => $expectedValue) {
-            $actualValue = $this->get($expectedPropName);
-            $actualString = stripslashes(var_export($actualValue, true));
-            $expectedString = var_export($expectedValue, true);
-            
-            if ($actualValue !== $expectedValue) {
-                $this->allExpectationsMet = false;
-                $this->expectationDeltas[] = array(
-                    'status' => 'F',
-                    'msg' => "$expectedPropName is $actualString, expected $expectedString",
-                );
-            } else {
-                $this->expectationDeltas[] = array(
-                    'status' => '.',
-                    'msg' => "$expectedPropName is $actualString",
-                );
-            }
+        if (!$expectationMet) {
+            $this->allExpectationsMet = false;
         }
         
-        return $this->allExpectationsMet;
+        $status = $expectationMet == true ? '.' : 'F';
+        $this->expectationDeltas[] = array(
+            'status' => $status,
+            'msg' => $msg,
+        );
     }
     
     
@@ -178,5 +176,24 @@ abstract class JobAbstract implements JobInterface
     public function expectationsWereMet()
     {
         return $this->allExpectationsMet;
+    }
+    
+    
+    /**
+     * storeException()
+     *
+     * Stores an exception object in the exceptions array for future referenece
+     * by the formatter class.
+     *
+     * If the application is going to throw an exception and you want a Formatter
+     * class to display/format it, it must be passed to a JobAbstract object
+     * via this method.
+     *
+     * @param \SugarRestHarness\Exception $exeption - an exception thrown during
+     *  this job.
+     */
+    public function storeException($exception)
+    {
+        $this->exceptions[] = $exception;
     }
 }

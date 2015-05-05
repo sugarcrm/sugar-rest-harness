@@ -11,6 +11,7 @@ class FormatterConcise extends FormatterBase implements FormatterInterface
 {
     public $headersAndMethods = array(
         'HTTP Data' => 'formatHTTPReturn',
+        'Exceptions' => 'formatExceptions',
         'Harness Messages' => 'formatHarnessMessages',
         'Harness Errors' => 'formatHarnessErrors',
         'Expectations' => 'formatExpecationResults',

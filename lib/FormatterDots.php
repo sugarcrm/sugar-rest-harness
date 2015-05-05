@@ -49,6 +49,7 @@ class FormatterDots extends FormatterBase implements FormatterInterface
         } else {
             foreach ($results as $job) {
                 reset($job->expectationDeltas);
+                $formatted .= $this->formatExceptions($job);
                 $formatted .= $this->formatExpecationResults($job);
             }
         }
