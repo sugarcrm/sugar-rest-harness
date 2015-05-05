@@ -293,8 +293,8 @@ class Harness
         try {
             $this->config['token'] = $this->connector->getToken();
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
-            die();
+            
+            die($e->getFormattedOutput());
         }
         
         return !empty($this->config['token']);

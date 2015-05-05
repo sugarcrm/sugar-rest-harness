@@ -24,13 +24,21 @@ class Exception extends \Exception
         parent::__construct($this->msg, $this->code, $previousException);
     }
     
-    public function output()
+    
+    public function getFormattedOutput()
     {
         $msg = array($this->getMessage());
         $file = $this->getFile();
         $line = $this->getLine();
+        $type = get_class($this);
         $msg[] = "Thrown in $file:$line";
-        print("\n****************\nSugarRestHarness Exception\n\n" . implode("\n", $msg) . "\n****************\n");
+        return "\n****************\nEXCEPTION: $type\n\n" . implode("\n", $msg) . "\n****************\n\n\n";
+    }
+    
+    
+    public function output()
+    {
+        print($this->getFormattedOutput());
     }
     
     
@@ -49,6 +57,16 @@ class MissingRequiredConfigAttributes extends \SugarRestHarness\Exception
 }
 
 
+class MissingRequiredRouteMapComponents extends \SugarRestHarness\Exception
+{
+    public function __construct($jobClass, $missingPropertyName, $routeMap) 
+    {
+        $msg = "Job $jobClass does not specify $missingPropertyName, which is required when using a '$routeMap' route map.";
+        $msg .= "\nNo Request sent!";
+        parent::__construct($msg);
+    }
+}
+
 class NoMethodSet extends \SugarRestHarness\Exception
 {
     public $msg = "Your config doesn't set a method (GET|POST|PUT|DELETE). You must either set a valid routeMap or a route and a method in your job config.";
@@ -65,17 +83,30 @@ class ServerError extends \SugarRestHarness\Exception
         '409' => 'Edit Conflict - Somebody else tried to edit this record',
         '412' => 'Metadata exception',
         '413' => 'Request is too large',
-        '422' => 'Request is missing required parameters, or has invalid parameters',
+        '422' => 'Request is missing required parameters, or has invalid parameters. The following problems were reported:',
         '424' => 'Request has invalid parameters',
         '433' => 'Client version is too low/out of date',
         '503' => 'Server is in Mainenance mode',
     );
     
-    public function __construct($httpReturnCode)
+    public function __construct($httpReturnCode, $errors)
     {
         $msg = "Server returned a $httpReturnCode error";
         if (IsSet($this->msgMap[$httpReturnCode])) {
             $msg .= " - {$this->msgMap[$httpReturnCode]}";
+        }
+        
+        $errors = json_decode($errors, true);
+        if ($errors && IsSet($errors['error_message'])) {
+            if (is_array($errors['error_message'])) {
+                foreach ($errors['error_message'] as $fieldName => $errorMessages) {
+                    foreach ($errorMessages as $errorMessage) {
+                        $msg .= "\n\t$fieldName - $errorMessage";
+                    }
+                }
+            } else {
+                $msg .= "\n\t" . $errors['error_message'];
+            }       
         }
         parent::__construct($msg);
     }
@@ -179,3 +210,12 @@ class WriteToFileFailed extends \SugarRestHarness\Exception
 }
 
 
+
+class ExpectationMethodDoesNotExist extends \SugarRestHarness\Exception
+{
+    public function __construct($jobId, $fieldName, $methodName)
+    {
+        $msg = "The Job $jobId has an expectation for $fieldName that uses an invalid operator: $methodName";
+        parent::__construct($msg);
+    }
+}

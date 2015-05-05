@@ -328,7 +328,7 @@ class RestConnector
                     if (IsSet($this->$propName) && !empty($this->$propName)) {
                         $routeSegment = $this->$propName;
                     } else {
-                        $this->error("Your job {$this->jobClass} config does not specify '$propName'. Please add this to your job config, it's required for a {$this->routeMap} routeMap.");
+                        throw new MissingRequiredRouteMapComponents($this->jobClass, $propName, $this->routeMap);
                         $routeSegment = '';
                     }
                 } else {
@@ -726,23 +726,20 @@ class RestConnector
         try {
             $url = $this->getURL($this->getRoute());
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
-            return false;
+            throw $e;
         }
         
         try {
             $method = $this->getMethod();
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
             $this->error("Cannot make a request without a method set in config.");
-            return false;
+            throw $e;
         }
         
         try {
             return $this->sendRequest($url, $method, $this->post);
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
-            return false;
+            throw $e;
         }
         
     }
@@ -812,8 +809,7 @@ class RestConnector
             $this->collecthttpReturn($ch);
             curl_close($ch);
             if ($this->httpReturn['HTTP Return Code'] != '200') {
-                var_export($results);
-                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code']);
+                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $results);
             }
             return $results;
         } else {
