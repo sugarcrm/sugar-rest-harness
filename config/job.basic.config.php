@@ -9,9 +9,10 @@ $config = array(
     'jobs_dir' => getcwd(),           // path to directory containing Jobs/
     // user_agent_string - modify at your own risk.
     'user_agent_string' => 'Mozilla/5.0 (Linux; U; Android 4.3; en-us; SAMSUNG-SGH-I747 Build/JSS15J) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 IBM/SalesConnect 1.3.0.61',
-    'client_platform' => 'mobile',    // standard for sugar
-    'client_id' => 'sugar',          // 'sc_web' for salesconnect, 'sugar' for core
-    'client_app_version' => '2.3.1',  // this is a minimum version allowed - may change 
+    'client_platform' => '',          // 'mobile' for mobile
+    'client_name' => '',              // 'nomad' for mobile, empty for web browser
+    'client_id' => 'sugar',           // 'sc_web' for salesconnect, 'sugar' for core
+    'client_app_version' => '',       // ex: '2.4.2' for nomad version -- may change in the future as mobile version changes
     'mode' => 'dev',                  // dev or test - 'test' means 'testing a sugar install', not testing the harness.
     'devFormatter' => array(
         'single' => 'TwoColumn',      // for a single job, use TwoColumn formatting (shows all data)

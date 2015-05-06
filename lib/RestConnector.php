@@ -22,9 +22,7 @@ class RestConnector
         'rest_dir', // i.e. /rest
         'rest_version_dir', // i.e. /v10
         'user_agent_string',
-        'client_platform',
         'client_id',
-        'client_app_version',
     );
     
     public $queryStringConfigVars = array(
@@ -58,6 +56,7 @@ class RestConnector
     public $install_path;
     public $user_agent_string;
     public $client_platform = '';
+    public $client_name = '';
     public $client_id = '';
     public $client_app_version = '';
     public $rest_dir;
@@ -510,7 +509,7 @@ class RestConnector
         $data->client_secret = '';
         $data->client_info = new \stdClass();
         $data->client_info->app = new \stdClass();
-        $data->client_info->app->name = 'nomad';
+        $data->client_info->app->name = $this->client_name;
         $data->client_info->app->isNative = false;
         $data->client_info->app->version = $this->client_app_version;
         $data->client_info->app->build = '115';
