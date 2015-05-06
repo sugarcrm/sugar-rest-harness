@@ -27,6 +27,7 @@ class JobWriter
     
     public function __construct(JobAbstract $job)
     {
+        $this->job = $job;
         $this->config = $job->config;
     }
     
@@ -47,7 +48,7 @@ class JobWriter
             $this->writeFile($contents);
             return true;
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
+            $this->job->storeException($e);
             return false;
         }
     }

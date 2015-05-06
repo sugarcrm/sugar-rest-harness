@@ -22,9 +22,7 @@ class RestConnector
         'rest_dir', // i.e. /rest
         'rest_version_dir', // i.e. /v10
         'user_agent_string',
-        'client_platform',
         'client_id',
-        'client_app_version',
     );
     
     public $queryStringConfigVars = array(
@@ -58,6 +56,7 @@ class RestConnector
     public $install_path;
     public $user_agent_string;
     public $client_platform = '';
+    public $client_name = '';
     public $client_id = '';
     public $client_app_version = '';
     public $rest_dir;
@@ -70,7 +69,7 @@ class RestConnector
     public $configFileName;
     public $order_by = '';
     public $sort_order = 'asc';
-    public $qs_pairs = array();
+    public $qs = array();
     public $id_field = '';
     public $linkedBean_id = '';
     public $prefName = '';
@@ -218,7 +217,11 @@ class RestConnector
      * @return string - a delimited list of fields.
      */
     public function formatFields($fields)
-    {        
+    {
+        if (!is_array($fields)) {
+            $fields = array($fields);
+        }
+        
         $fieldsString = '';
         if (!empty($fields)) {
             $fields = implode(',', $fields);
@@ -264,13 +267,11 @@ class RestConnector
      
      * returns the url for the rest service we're trying to contact.
      *
-     * @param string $path - the route - the last part of the rest path, after the base_url, 
+     * @param string $route - the route - the last part of the rest path, after the base_url, 
      *  install_path, rest_dir and rest_version_dir.
-     * @param mixed $qs - the query string, as name/value pairs. If boolean false is
-     *  passed in, no query string will be appended.
      * @return string - a full URL for the REST service.
      */
-    public function getURL($route, $qs = array())
+    public function getURL($route)
     {
         if (IsSet($this->url)) {
             $this->msg("REST Service URL is {$this->url}");
@@ -291,11 +292,7 @@ class RestConnector
         );
         $url = implode('', $urlPieces);
         
-        if ($qs !== false) {
-            $queryString = $this->buildQueryString($qs);
-        } else {
-            $queryString = '';
-        }
+        $queryString = $this->buildQueryString();
         
         if (!empty($queryString)) {
             $url .= "?$queryString"; 
@@ -330,7 +327,7 @@ class RestConnector
                     if (IsSet($this->$propName) && !empty($this->$propName)) {
                         $routeSegment = $this->$propName;
                     } else {
-                        $this->error("Your job {$this->jobClass} config does not specify '$propName'. Please add this to your job config, it's required for a {$this->routeMap} routeMap.");
+                        throw new MissingRequiredRouteMapComponents($this->jobClass, $propName, $this->routeMap);
                         $routeSegment = '';
                     }
                 } else {
@@ -382,33 +379,22 @@ class RestConnector
      * params in config and adds them to an array, with urlencoded values, and then
      * concatenates the array with amperands (&).
      *
-     * @param mixed string or array $additionalParams - config var to add to the list
-     *   of vars to loop over.
      * @return string - a urlencoded query string.
      */
-    public function buildQueryString($additionalParams = '')
+    public function buildQueryString()
     {
-        if (!is_array($additionalParams)) {
-            $additionalParams = array($additionalParams);
-        }
-        
-        $this->queryStringConfigVars = array_unique(array_merge($this->queryStringConfigVars, $additionalParams));
         $qsPairs = array();
-        foreach ($this->queryStringConfigVars as $varName) {
-            if (!IsSet($this->$varName) || empty($this->$varName)) {
-                continue;
-            }
-            
+        foreach ($this->qs as $varName => $value) {
             switch($varName) {
                 case 'fields':
-                    $value = $this->formatFields($this->$varName);
+                    $value = $this->formatFields($value);
                     break;
                     
                 case 'filters':
-                    if (is_string($this->$varName)) {
-                        $filters = explode('&', $this->$varName);
+                    if (is_string($value)) {
+                        $filters = explode('&', $value);
                     } else {
-                        $filters = $this->$varName;
+                        $filters = $value;
                     }
                     foreach ($filters as $filter) {
                         $qsPairs[] = $filter;
@@ -416,29 +402,26 @@ class RestConnector
                     break;
                 
                 case 'filter_json':
-                    $filters = $this->formatFilters($this->$varName);
+                    $filters = $this->formatFilters($value);
                     foreach ($filters as $filterParams => $filterValue) {
                         $qsPairs[] = "{$filterParams}={$filterValue}";
                     }
                     break;
                     
                 case 'order_by':
-                    $value = urlencode("{$this->order_by}:{$this->sort_order}");
+                    $sort_order = IsSet($this->qs['sort_order']) ? ':' . $this->qs['sort_order'] : '';
+                    $value = urlencode("{$value}{$sort_order}");
                     break;
                     
                 case 'term':
                 case 'q':
-                    $value = urlencode($this->$varName);
+                    $value = urlencode($value);
                     $varName = 'q';
                     break;
                     
                 default:
-                    $value = urlencode($this->$varName);
+                    $value = urlencode($value);
                     break;
-            }
-            
-            if (empty($varName) || empty($value)) {
-                continue;
             }
             
             // filters has been handled above, and should not be re-added.
@@ -526,7 +509,7 @@ class RestConnector
         $data->client_secret = '';
         $data->client_info = new \stdClass();
         $data->client_info->app = new \stdClass();
-        $data->client_info->app->name = 'nomad';
+        $data->client_info->app->name = $this->client_name;
         $data->client_info->app->isNative = false;
         $data->client_info->app->version = $this->client_app_version;
         $data->client_info->app->build = '115';
@@ -686,7 +669,7 @@ class RestConnector
      */
     public function getToken()
     {
-        $url = $this->getURL('/oauth2/token', false);
+        $url = $this->getURL('/oauth2/token');
         $this->msg("getting token from $url for {$this->user_name}");
         $data = $this->getTokenPostData();
         $ch = $this->getCURLHandleForPOST($url, $data);
@@ -739,28 +722,23 @@ class RestConnector
      */
     public function makeRequest()
     {
-        $qs = $this->buildQueryString();
-        
         try {
-            $url = $this->getURL($this->getRoute(), $qs);
+            $url = $this->getURL($this->getRoute());
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
-            return false;
+            throw $e;
         }
         
         try {
             $method = $this->getMethod();
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
             $this->error("Cannot make a request without a method set in config.");
-            return false;
+            throw $e;
         }
         
         try {
             return $this->sendRequest($url, $method, $this->post);
         } catch (\SugarRestHarness\Exception $e) {
-            $e->output();
-            return false;
+            throw $e;
         }
         
     }
@@ -830,8 +808,7 @@ class RestConnector
             $this->collecthttpReturn($ch);
             curl_close($ch);
             if ($this->httpReturn['HTTP Return Code'] != '200') {
-                var_export($results);
-                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code']);
+                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $results);
             }
             return $results;
         } else {

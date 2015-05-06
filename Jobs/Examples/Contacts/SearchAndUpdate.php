@@ -12,7 +12,6 @@ class SearchAndUpdate extends \SugarRestHarness\JobSeries
                 'bean_id' => $record->id,
                 'post' => array(
                     'id' => $record->id,
-                    'title' => 'Skillful Coder',
                 ),
             );
             

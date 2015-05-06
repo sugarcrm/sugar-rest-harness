@@ -37,6 +37,7 @@ class FormatterTwoColumnLimited extends FormatterBase implements FormatterInterf
             if (!$job->expectationsWereMet()) {
                 $jobsData[] = $this->formatExpecationResults($job);
             }
+            $jobsData[] = $this->formatExceptions($job);
         }
         return implode("\n", $jobsData);
     }
