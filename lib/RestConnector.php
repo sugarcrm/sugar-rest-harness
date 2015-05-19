@@ -189,6 +189,7 @@ class RestConnector
             'allMetadata'             => array('GET', 'metadata'),
             'filterMetadata'          => array('POST', 'metadata'),
             'listDashboards'          => array('GET', 'Dashboards', '$module'),
+            'getEnumValues'           => array('GET', '$module', 'enum', '$field'),
         );
     }
     
