@@ -148,23 +148,41 @@ class Config
         }
         
         $configFiles = array(
-            "{$this->installPath}/config/$configFileName",
-            "{$this->installPath}/custom/config/$configFileName",
+            // always load the default - if the specified name exists in /config, it
+            // will overwrite the default file.
+            'default' => "{$this->installPath}/config/{$this->defaultConfigFileName}",
+            'specified' => "{$this->installPath}/config/$configFileName",
+            'specified_custom' => "{$this->installPath}/custom/config/$configFileName",
             );
         
-        $fileFound = false;
-        foreach ($configFiles as $filePath) {
+        $filesFound = array();
+        $filesMissing = array();
+        foreach ($configFiles as $name => $filePath) {
             if (file_exists($filePath)) {
-                $fileFound = true;
-                require($filePath); // must define $config.
+                $filesFound[$name] = array($filePath);
+                require_once($filePath); // must define $config.
                 foreach ($config as $name => $value) {
                     $this->configFileOptions[$name] = $value;
                 }
+            } else {
+                $filesMissing[$name] = $filePath;
             }
         }
         
-        if (!$fileFound) {
-            die("Config::importConfig failure - $configFileName does not exist!");
+        $requiredConfigFilesLoaded = true;
+        
+        if (count($filesFound) == 0) {
+            $requiredConfigFilesLoaded = false;
+        }
+        
+        if ($configFileName != $this->defaultConfigFileName) {
+            if (IsSet($filesMissing['specified']) && IsSet($filesMissing['specified_custom'])) {
+                $requiredConfigFilesLoaded = false;
+            }
+        }
+        
+        if (!$requiredConfigFilesLoaded) {
+            die("Config::importConfig failure - $configFileName does not exist! Searched these locations:\n" . implode("\n", $filesMissing));
         }
         
         if (empty($config)) {
