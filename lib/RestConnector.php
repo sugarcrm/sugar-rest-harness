@@ -64,7 +64,7 @@ class RestConnector
     public $max_num = 0;
     public $my_items = 0;
     public $favorites = 0;
-    public $linkedModule;
+    public $linkName;
     public $verbose = false;
     public $configFileName;
     public $order_by = '';
@@ -170,9 +170,9 @@ class RestConnector
             'deleteRecordByCustomId'  => array('DELETE', '$module', '$bean_id', 'id_field', '$id_field'),
             'retrieveRecordByCustomId'=> array('PUT', '$module', '$bean_id', 'id_field', '$id_field'),
             'createRelatedLinks'      => array('POST', '$module', '$bean_id', 'link'),
-            'createRelatedRecord'     => array('POST', '$module', '$bean_id', 'link', '$linkedModule'),
-            'filterRelated'           => array('GET', '$module', '$bean_id', 'link', '$linkedModule'),
-            'getRelatedRecord'        => array('GET', '$module', '$bean_id', 'link', '$linkedModule', '$linkedBean_id'),
+            'createRelatedRecord'     => array('POST', '$module', '$bean_id', 'link', '$linkName'),
+            'filterRelated'           => array('GET', '$module', '$bean_id', 'link', '$linkName'),
+            'getRelatedRecord'        => array('GET', '$module', '$bean_id', 'link', '$linkName', '$linkedBean_id'),
             'localeOptions'           => array('GET', 'locale'),
             'retrieveCurrentUser'     => array('GET', 'me'),
             'updateCurrentUser'       => array('PUT', 'me'),
