@@ -35,7 +35,7 @@ Common Job Config Options:
 --max_num=<integer>
 --my_items=<0|1>
 --favorites=<0|1>
---linkedModule=<module_name>
+--linkName=<name_of_bean_link_property>
 --verbose=<0|1>
 --order_by=<sugarbean field name>
 --sort_order=<asc|desc>
