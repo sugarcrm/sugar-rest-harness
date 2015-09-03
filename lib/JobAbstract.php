@@ -27,6 +27,7 @@ abstract class JobAbstract implements JobInterface
     public $expectationsDeltas = array();
     public $allExpectationsMet = true;
     public $exceptions = array();
+    public $randomizer = null;
     
     
     /**
@@ -195,5 +196,34 @@ abstract class JobAbstract implements JobInterface
     public function storeException($exception)
     {
         $this->exceptions[] = $exception;
+    }
+    
+    
+    /**
+     * randomize()
+     *
+     * Generates a random value and returns it. Random values must be supported by
+     * the RandomizerFactory class and the Randomizer classes it uses.
+     *
+     * The arguments for randomize must include a $type, which will map to a class
+     * that extends the RandomizerAbstract class and implements the RandomizerInterface.
+     *
+     * The arguments can also optionally include additional information a specific
+     * randomizer will require. See the docs for specific randomizers to see what
+     * additional info they require.
+     *
+     * @param string $type - The type of random data.
+     * @param array $params - a hash of optional additional arguments.
+     */
+    public function randomize($type, $params = array())
+    {
+        $randomDataManager = \SugarRestHarness\RandomizerFactory::getInstance();
+        try {
+            $randomizer = $randomDataManager->loadRandomizer($type);
+            return $randomizer->getRandomData($params);
+        } catch (\SugarRestHarness\Exception $e) {
+            $this->storeException($e);
+            return '';
+        }
     }
 }
