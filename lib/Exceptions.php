@@ -219,3 +219,63 @@ class ExpectationMethodDoesNotExist extends \SugarRestHarness\Exception
         parent::__construct($msg);
     }
 }
+
+
+class RandomDataTypeDoesNotExist extends \SugarRestHarness\Exception
+{
+    public function __construct($badType)
+    {
+        $msg = "There is no Randomizer class 'Randomizer$badType'. Please check your randomizer type name.";
+        parent::__construct($msg);
+    }
+}
+
+
+class RandomDataClassIsNotDefined extends \SugarRestHarness\Exception
+{
+    public function __construct($filePath, $className)
+    {
+        $msg = "The randomizer file $filePath does not define the class '$className'.";
+        parent::__construct($msg);
+    }
+}
+
+
+class RandomDataKeyIsInvalid extends \SugarRestHarness\Exception
+{
+    public function __construct($badKey, $finalKey)
+    {
+        $msg = "The randomizer cannot get a random value for '$badKey' because it's not defined in appListStrings.";
+        parent::__construct($msg);
+    }
+}
+
+
+class RandomDataParamMissing extends \SugarRestHarness\Exception
+{
+    public function __construct($className, $missingParamName)
+    {
+        $msg = "The $className randomizer requires a value for \$params['$missingParamName'] to be passed into getRandomData().";
+        parent::__construct($msg);
+    }
+}
+
+
+class RandomDataNoEnumFieldData extends \SugarRestHarness\Exception
+{
+    public function __construct($module, $field)
+    {
+        $msg = "There's no enum data for the {$module}->$field field.";
+        parent::__construct($msg);
+    }
+}
+
+
+class RandomDataAppListStringNotFound extends \SugarRestHarness\Exception
+{
+    public function __construct($key)
+    {
+        $msg = "Could not find '$key' in app_list_strings.";
+        parent::__construct($msg);
+    }
+}
