@@ -210,17 +210,6 @@ class WriteToFileFailed extends \SugarRestHarness\Exception
 }
 
 
-
-class ExpectationMethodDoesNotExist extends \SugarRestHarness\Exception
-{
-    public function __construct($jobId, $fieldName, $methodName)
-    {
-        $msg = "The Job $jobId has an expectation for $fieldName that uses an invalid operator: $methodName";
-        parent::__construct($msg);
-    }
-}
-
-
 class RandomDataTypeDoesNotExist extends \SugarRestHarness\Exception
 {
     public function __construct($badType)
@@ -276,6 +265,26 @@ class RandomDataAppListStringNotFound extends \SugarRestHarness\Exception
     public function __construct($key)
     {
         $msg = "Could not find '$key' in app_list_strings.";
+        parent::__construct($msg);
+    }
+}
+
+
+class ExpectationClassFileNotFound extends \SugarRestHarness\Exception
+{
+    public function __construct($classFilePath)
+    {
+        $msg = "The file '$classFilePath' does not exist or could not be opened.";
+        parent::__construct($msg);
+    }
+}
+
+
+class ExpectationClassNotDefined extends \SugarRestHarness\Exception
+{
+    public function __construct($className, $classFilePath)
+    {
+        $msg = "The file '$classFilePath' does not define $className. Please make sure the class is is correct, including the namespace.";
         parent::__construct($msg);
     }
 }
