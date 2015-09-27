@@ -1,9 +1,6 @@
 <?php
 namespace SugarRestHarness\Expectations;
 
-require_once("lib/Expectations/ExpectationsAbstract.php");
-require_once("lib/Expectations/Contains.php");
-
 class Not_contains extends \SugarRestHarness\Expectations\Contains implements ExpectationsInterface
 {
     

@@ -105,7 +105,7 @@ class ResultsRepository
      *
      * @param FormatterBase $formatter - A formatter object.
      */
-    public function setFormatter(\SugarRestHarness\FormatterBase $formatter)
+    public function setFormatter(\SugarRestHarness\Formatters\FormatterBase $formatter)
     {
         $this->formatter = $formatter;
     }

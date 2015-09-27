@@ -1,5 +1,5 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
 /**
  * FormatterConcise
@@ -7,7 +7,7 @@ namespace SugarRestHarness;
  * This class only outputs 'concise' results: only the return code, errors, and failed
  * expectations.
  */
-class FormatterConcise extends FormatterBase implements FormatterInterface
+class FormatterConcise extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     public $headersAndMethods = array(
         'HTTP Data' => 'formatHTTPReturn',
@@ -56,7 +56,7 @@ class FormatterConcise extends FormatterBase implements FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatExpecationResults(JobAbstract $jobObj)
+    public function formatExpecationResults(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = parent::formatExpecationResults($jobObj);
         if (trim($formatted) == 'All expectations met!') {
@@ -80,7 +80,7 @@ class FormatterConcise extends FormatterBase implements FormatterInterface
      * @param JobAbstract $jobObj - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatHTTPReturn(JobAbstract $jobObj)
+    public function formatHTTPReturn(\SugarRestHarness\JobAbstract $jobObj)
     {
         if ($jobObj->connector->httpReturn['HTTP Return Code'] == '200') {
             return "Content-Length: " . $jobObj->connector->httpReturn['Content-Length'];
@@ -100,7 +100,7 @@ class FormatterConcise extends FormatterBase implements FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatHarnessMessages(JobAbstract $jobObj) {
+    public function formatHarnessMessages(\SugarRestHarness\JobAbstract $jobObj) {
         if (count($jobObj->connector->errors) == 2) {
             return parent::formatHarnessMessages($jobObj);
         } else {

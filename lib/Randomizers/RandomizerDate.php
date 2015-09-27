@@ -1,7 +1,5 @@
 <?php
-namespace SugarRestHarness;
-
-require_once('lib/Randomizers/RandomizerAbstract.php');
+namespace SugarRestHarness\Randomizers;
 
 class RandomizerDate extends RandomizerAbstract implements RandomizerInterface
 {

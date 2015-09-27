@@ -1,5 +1,5 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
 /**
  * FormatterDots
@@ -9,7 +9,7 @@ namespace SugarRestHarness;
  * (users of phpunit should find this format familiar). After the dots and F's, a 
  * report of all failed expectations, grouped by job, will be output to the screen.
  */
-class FormatterDots extends FormatterBase implements FormatterInterface
+class FormatterDots extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     
     /**
@@ -25,22 +25,12 @@ class FormatterDots extends FormatterBase implements FormatterInterface
         $formatted = "\n";
         $results = $this->repository->getResults();
         $count = 0;
+        $allJobExpectationsWereMet = true;
         foreach ($results as $job) {
             if (!$job->expectationsWereMet()) {
                 $allJobExpectationsWereMet = false;
             }
-            /*
-            foreach ($job->expectationDeltas as $delta) {
-                $count++;
-                $formatted .= "{$delta['status']}";
-                if ($count % 40 === 0) {
-                    $formatted .= "\n";
-                }
-            }
-            */
         }
-        
-        //$formatted .= "\n\n";
         
         reset($results);
         
@@ -66,7 +56,7 @@ class FormatterDots extends FormatterBase implements FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return void
      */
-    public function flushOutput(JobAbstract $jobObj)
+    public function flushOutput(\SugarRestHarness\JobAbstract $jobObj)
     {
         foreach ($jobObj->expectationDeltas as $delta) {
             print("{$delta['status']}");
@@ -84,7 +74,7 @@ class FormatterDots extends FormatterBase implements FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatExpecationResults(JobAbstract $jobObj)
+    public function formatExpecationResults(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = '';
         if ($jobObj->expectationsWereMet()) {

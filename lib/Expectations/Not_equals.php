@@ -1,8 +1,6 @@
 <?php
 namespace SugarRestHarness\Expectations;
 
-require_once("lib/Expectations/ExpectationsAbstract.php");
-require_once("lib/Expectations/Equals.php");
 class Not_equals extends \SugarRestHarness\Expectations\Equals implements ExpectationsInterface
 {
     

@@ -1,5 +1,5 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
 /**
  * FormatterBasic
@@ -8,7 +8,7 @@ namespace SugarRestHarness;
  *
  * @see FormatterBase
  */
-class FormatterBasic extends FormatterBase implements FormatterInterface
+class FormatterBasic extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     /**
      * format()

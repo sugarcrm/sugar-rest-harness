@@ -288,3 +288,23 @@ class ExpectationClassNotDefined extends \SugarRestHarness\Exception
         parent::__construct($msg);
     }
 }
+
+
+class FormatterClassFileNotFound extends \SugarRestHarness\Exception
+{
+    public function __construct($classFilePath)
+    {
+        $msg = "The file '$classFilePath' does not exist or could not be opened.";
+        parent::__construct($msg);
+    }
+}
+
+
+class FormatterClassNotDefined extends \SugarRestHarness\Exception
+{
+    public function __construct($className, $classFilePath)
+    {
+        $msg = "The file '$classFilePath' does not define $className. Please make sure the class is is correct, including the namespace.";
+        parent::__construct($msg);
+    }
+}
