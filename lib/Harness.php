@@ -45,32 +45,23 @@ class Harness
      * @param string $className - the name of the class to load.
      * @return bool - always returns true.
      */
-    private function autoload($className)
+    private function autoload($namespacedClassName)
     {
         $installLibDir = pathinfo(__FILE__, PATHINFO_DIRNAME);
-        $namespaceParts = explode('\\', $className);
+        $namespaceParts = explode('\\', $namespacedClassName);
         $className = array_pop($namespaceParts);
+        array_shift($namespaceParts);
+        $directoryPath = rtrim($installLibDir . '/' . implode('/', $namespaceParts), '/');
         
-        $classPath = "$installLibDir/$className.php";
+        $classPath = "{$directoryPath}/{$className}.php";
         
         if (is_file($classPath)) {
             require_once($classPath);
-            if (!class_exists("\\SugarRestHarness\\$className") && !interface_exists("\\SugarRestHarness\\$className")) {
-                die("Harness::autoload failure - $className not defined in $classPath\n");
+            if (!class_exists("$namespacedClassName") && !interface_exists("$namespacedClassName")) {
+                die("Harness::autoload failure - $namespacedClassName not defined in $classPath\n");
             }
         } else {
-            /*
-            This was a dev-debugging tool - should be replaced with exceptions.
-            $bt = debug_backtrace();
-            foreach ($bt as $t) {
-                if (!IsSet($t['file']) || empty($t['file'])) {$t['file'] = '';}
-                if (!IsSet($t['line']) || empty($t['line'])) {$t['line'] = '';}
-                if (!IsSet($t['class']) || empty($t['class'])) {$t['class'] = '';}
-                if (!IsSet($t['function']) || empty($t['function'])) {$t['function'] = '';}
-                print("\n{$t['file']}:{$t['line']} {$t['class']}->{$t['function']}(" . var_export($t['args'], true) . ")");
-            }
-            die("Harness::autoload failure - $classPath not found while trying to instantiate $className\n");
-            */
+            die("Harness::autoload failure - $classPath not found while trying to instantiate $namespacedClassName\n");
         }
         return true;
     }
@@ -270,12 +261,46 @@ class Harness
             $className = 'TwoColumn';
         }
         
-        $className = "\SugarRestHarness\Formatter{$className}";
-        if (class_exists($className)) {
-            return new $className($this->config);
-        } else {
-            die("There is no formatter class '$className' in lib/\n");
+        $className = "\SugarRestHarness\Formatters\Formatter{$className}";
+        try {
+            $formatter = $this->loadFormatterClass($className);
+        } catch (Exception $e) {
+            // load the default.
+            $formatter = $this->loadFormatterClass("\SugarRestHarness\Formatters\FormatterTwoColumn");
+            $this->storeException($e);
         }
+        return $formatter;
+    }
+    
+    
+    /**
+     * loadFormatterClass()
+     *
+     * Loads the specified formatter class. Throws exceptions if the class file
+     * cannot be found or if the class isn't defined in the class file.
+     *
+     * @param string $className - the name of the formatter class you want to load.
+     * @return FormatterBase - an object that extends the FormatterBase class.
+     * @throws FormatterClassFileNotFound, FormatterClassNotDefined
+     */
+    public function loadFormatterClass($className)
+    {
+        $classNameParts = explode('\\', $className);
+        $classBaseName = $classNameParts[count($classNameParts) - 1];
+        $classFilePath = "lib/Formatters/{$classBaseName}.php";
+        
+        if (!file_exists($classFilePath)) {
+            throw new FormatterClassFileNotFound($classFilePath);
+        }
+        
+        require_once($classFilePath);
+        
+        if (!class_exists($className)) {
+            throw new FormatterClassNotDefined($className, $classFilePath);
+        }
+        
+        $formatter = new $className($this->config);
+        return $formatter;
     }
     
     
@@ -323,10 +348,13 @@ class Harness
         $this->login();
         
         $jobClasses = $this->getJobClassList();
+        
         $formatter = $this->formatterFactory(count($jobClasses));
+        
         ResultsRepository::getInstance()->setFormatter($formatter);
         foreach ($jobClasses as $classFilePath => $namespacedClassName) {
             $this->job = new $namespacedClassName($this->config);
+            $this->transferExceptions($this->job);
             $this->job->run();
             
             if (IsSet($this->config['w'])) {
@@ -336,5 +364,43 @@ class Harness
         }
         
         return $formatter->format();
+    }
+    
+    
+    /**
+     * storeException()
+     *
+     * Stores an exception object in the exceptions array for future referenece
+     * by the formatter class.
+     *
+     * If the application is going to throw an exception and you want a Formatter
+     * class to display/format it, it must be passed to a JobAbstract object
+     * via this method.
+     *
+     * @param \SugarRestHarness\Exception $exeption - an exception thrown during
+     *  this job.
+     */
+    public function storeException($exception)
+    {
+        $this->exceptions[] = $exception;
+    }
+    
+    
+    /**
+     * transferExceptions()
+     *
+     * This method copies any exceptions stored in the Harness to the target object
+     * passed in as the argument. This is good for displaying exceptions generated
+     * by the harness via the usual mechanism in the job classes.
+     *
+     * @param JobAbstract $target - any object that defines a storeException() method.
+     */
+    public function transferExceptions($target)
+    {
+        if (method_exists($target, 'storeException') && !empty($this->exceptions)) {
+            foreach ($this->exceptions as $exception) {
+                $target->storeException($exception);
+            }
+        }
     }
 }

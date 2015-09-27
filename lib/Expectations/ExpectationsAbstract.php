@@ -1,8 +1,6 @@
 <?php
 namespace SugarRestHarness\Expectations;
 
-require_once("lib/Expectations/ExpectationsInterface.php");
-
 class ExpectationsAbstract implements ExpectationsInterface
 {
     public function __construct()

@@ -1,5 +1,5 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
 /**
  * FormatterTwoColumnLimited
@@ -8,7 +8,7 @@ namespace SugarRestHarness;
  * and prints each pair on a line. Nested arrays are indented. The fields are limited
  * to whatever field names are specified in $this->config['fields'].
  */
-class FormatterTwoColumnLimited extends FormatterBase implements FormatterInterface
+class FormatterTwoColumnLimited extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     public $alwaysDisplay = array('records', 'next_offset');
     
@@ -52,7 +52,7 @@ class FormatterTwoColumnLimited extends FormatterBase implements FormatterInterf
      * @param string $indent - expected whitespace to indent the lines by.
      * @return string - a formatted string
      */
-    public function formatResults($jobObj, $indent='')
+    public function formatResults(\SugarRestHarness\JobAbstract $jobObj, $indent='')
     {
         $this->setFields($jobObj);
         $formatted = $this->recurseData($jobObj->results, $indent);
@@ -100,7 +100,7 @@ class FormatterTwoColumnLimited extends FormatterBase implements FormatterInterf
      * @param JobAbstract $jobObj - a JobAbstract object
      * @return mixed - array if fields are specified in the job, false otherwise.
      */
-    public function setFields($jobObj)
+    public function setFields(\SugarRestHarness\JobAbstract $jobObj)
     {
         if (IsSet($this->fields)) {
             return $this->fields;

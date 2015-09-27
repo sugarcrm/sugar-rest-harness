@@ -1,8 +1,6 @@
 <?php
 namespace SugarRestHarness\Expectations;
 
-require_once("lib/Expectations/ExpectationsAbstract.php");
-
 class Count extends \SugarRestHarness\Expectations\ExpectationsAbstract implements ExpectationsInterface
 {
     /**

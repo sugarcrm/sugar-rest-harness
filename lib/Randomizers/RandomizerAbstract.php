@@ -1,7 +1,6 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Randomizers;
 
-require_once('lib/Randomizers/RandomizerInterface.php');
 require_once('Jobs/Generic.php');
 
 /**
