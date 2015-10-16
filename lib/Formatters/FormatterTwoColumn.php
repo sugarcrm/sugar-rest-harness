@@ -1,5 +1,5 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
 /**
  * FormatterTwoColumn
@@ -7,7 +7,7 @@ namespace SugarRestHarness;
  * This class formats the data returned by a REST request into two columns, name: value,
  * and prints each pair on a line. Nested arrays are indented.
  */
-class FormatterTwoColumn extends FormatterBase implements FormatterInterface
+class FormatterTwoColumn extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     
     /**
@@ -48,7 +48,7 @@ class FormatterTwoColumn extends FormatterBase implements FormatterInterface
      * @param string $indent - expected whitespace to indent the lines by.
      * @return string - a formatted string
      */
-    public function formatResults($jobObj, $indent='')
+    public function formatResults(\SugarRestHarness\JobAbstract $jobObj, $indent='')
     {
         $formatted = $this->recurseData($jobObj->results, $indent);
         return $formatted;

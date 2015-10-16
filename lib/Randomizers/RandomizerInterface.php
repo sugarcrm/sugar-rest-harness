@@ -1,5 +1,5 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Randomizers;
 
 interface RandomizerInterface
 {

@@ -57,7 +57,7 @@ class RandomizerFactory
     public function loadRandomizer($name)
     {
         $fileName = "Randomizer{$name}";
-        $className = "\SugarRestHarness\Randomizer{$name}";
+        $className = "\SugarRestHarness\Randomizers\Randomizer{$name}";
         
         if (!isset($this->randomizers[$className])) {
             $path = "lib/Randomizers/$fileName.php";

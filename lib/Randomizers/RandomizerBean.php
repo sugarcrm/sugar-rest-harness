@@ -1,7 +1,5 @@
 <?php
-namespace SugarRestHarness;
-
-require_once("lib/Randomizers/RandomizerAbstract.php");
+namespace SugarRestHarness\Randomizers;
 
 class RandomizerBean extends RandomizerAbstract implements RandomizerInterface
 {
@@ -28,6 +26,11 @@ class RandomizerBean extends RandomizerAbstract implements RandomizerInterface
         }
         
         $beanList = $this->populate($params['module']);
+        
+        if (empty($beanList)) {
+            return '';
+        }
+        
         $randomBean = $beanList[rand(0, (count($beanList) - 1))];
         if (isset($params['field'])) {
             $field = $params['field'];

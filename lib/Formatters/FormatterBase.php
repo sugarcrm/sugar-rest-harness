@@ -1,6 +1,7 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
+require_once('lib/Formatters/FormatterInterface.php');
 /**
  * FormatterBase
  *
@@ -11,7 +12,7 @@ namespace SugarRestHarness;
  * through all of the jobs, extact the data it's interested in, format that data, and
  * output it where you want it to go (stdout is typical, anything is possible).
  */
-abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
+abstract class FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     public $headersAndMethods = array(
         'HTTP Data' => 'formatHTTPReturn',
@@ -24,7 +25,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
     
     public function __construct($config)
     {
-        $this->repository = ResultsRepository::getInstance();
+        $this->repository = \SugarRestHarness\ResultsRepository::getInstance();
         $this->config = $config;
     }
     
@@ -67,7 +68,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatResults(JobAbstract $jobObj)
+    public function formatResults(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = var_export($jobObj->results, true);
         
@@ -86,7 +87,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatExpecationResults(JobAbstract $jobObj)
+    public function formatExpecationResults(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = '';
         if ($jobObj->expectationsWereMet()) {
@@ -111,7 +112,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatHarnessMessages(JobAbstract $jobObj)
+    public function formatHarnessMessages(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = implode("\n", $jobObj->connector->msgs);
         return $formatted;
@@ -126,7 +127,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatHarnessErrors(JobAbstract $jobObj)
+    public function formatHarnessErrors(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = implode("\n", $jobObj->connector->errors);
         return $formatted;
@@ -143,7 +144,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract $jobObj - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatHTTPReturn(JobAbstract $jobObj)
+    public function formatHTTPReturn(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = '';
         foreach ($jobObj->connector->httpReturn as $name => $value) {
@@ -161,7 +162,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract $jobObj - a JobAbstract object
      * @return string - a formatted string
      */
-    public function formatExceptions(JobAbstract $jobObj)
+    public function formatExceptions(\SugarRestHarness\JobAbstract $jobObj)
     {
         $formatted = '';
         if (count($jobObj->exceptions) == 0) {
@@ -190,7 +191,7 @@ abstract class FormatterBase implements \SugarRestHarness\FormatterInterface
      * @param JobAbstract $jobObj - a JobAbstract object
      * @return void.
      */
-    public function flushOutput($jobObj)
+    public function flushOutput(\SugarRestHarness\JobAbstract $jobObj)
     {
         $output = "finished job {$jobObj->id}\r";
         $clear = str_repeat(" ", strlen($output) + 50);

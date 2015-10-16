@@ -1,12 +1,13 @@
 <?php
-namespace SugarRestHarness;
+namespace SugarRestHarness\Formatters;
 
+require_once('lib/Formatters/FormatterBase.php');
 /**
  * FormatterRaw
  *
  * This class only outputs the raw json text returned by the REST request for each job.
  */
-class FormatterRaw extends FormatterBase implements FormatterInterface
+class FormatterRaw extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
     /**
      * format()
