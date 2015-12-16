@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 $config = array(
     'user_name' => 'admin',              // sugar user_name
     'password' => 'asdf',             // sugar user pass

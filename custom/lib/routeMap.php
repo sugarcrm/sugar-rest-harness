@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 /**
  * The routeMap variable 'maps' a route name to an array of variables and/or strings
  * that comprise that route. The first element in the array is always the HTTP verb
