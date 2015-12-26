@@ -29,8 +29,9 @@ class RandomizerAppListString extends RandomizerAbstract implements RandomizerIn
         }
         $this->populate();
         $data = $this->parseDataForKey($params['key']);
-        
-        return $data[rand(0, (count($data) - 1))];
+        $indices = array_keys($data);
+        $randomIndex = $indices[rand(0, count($indices) - 1)];
+        return $data[$randomIndex];
     }
     
     

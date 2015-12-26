@@ -112,4 +112,17 @@ class ResultsRepository
     {
         $this->formatter = $formatter;
     }
+    
+    
+    /**
+     * getFormatter()
+     *
+     * Returns the formatter object of this class.
+     *
+     * @return \SugarRestHarness\Formatter\FormatterBase
+     */
+    public function getFormatter()
+    {
+        return $this->formatter;
+    }
 }
