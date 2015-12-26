@@ -656,16 +656,19 @@ class RestConnector
         $hash = json_decode($token);
         curl_close($ch);
         
-        if (!empty($token) && property_exists($hash, 'access_token')) {
+        if (!empty($token) && is_object($hash) && property_exists($hash, 'access_token')) {
             $this->msg("Received token {$hash->access_token}");
             $this->token = $hash->access_token;
             return $hash->access_token;
         } else {
             $this->error("Did not receive an access token from OAuth2 request! Bad password?");
-            foreach ($hash as $index => $msg) {
-                $this->error("$index: $msg");
+            if (is_array($hash)) {
+                foreach ($hash as $index => $msg) {
+                    $this->error("$index: $msg");
+                }
+            } else {
+                $this->error($hash);
             }
-            
             $errorData = array($this->msgs, $this->errors, $this->httpReturn);
             throw new LoginFailure($this->user_name, $url, $errorData);
             return '';

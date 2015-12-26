@@ -28,6 +28,7 @@ class Harness
     {
         $this->registerAutoloader();
         $this->config = \SugarRestHarness\Config::getInstance()->getHarnessConfig();
+        $this->repo = \SugarRestHarness\ResultsRepository::getInstance();
         $this->connector = new RestConnector($this->config);
     }
     
@@ -55,16 +56,35 @@ class Harness
         $className = array_pop($namespaceParts);
         array_shift($namespaceParts);
         $directoryPath = rtrim($installLibDir . '/' . implode('/', $namespaceParts), '/');
+        $customDirectoryPath = str_replace('/lib', '/custom/lib', $directoryPath); 
         
-        $classPath = "{$directoryPath}/{$className}.php";
+        $paths = array(
+            'classPath' => "{$directoryPath}/{$className}.php",
+            'customClassPath' => "{$customDirectoryPath}/{$className}.php",
+        );
         
-        if (is_file($classPath)) {
-            require_once($classPath);
+        $coreFileFound = false;
+        $customFileFound = false;
+        $coreClassInstantiated = false;
+        $customClassInstantiated = false;
+        
+        if (is_file($paths['classPath'])) {
+            $coreFileFound = true;
+            require_once($paths['classPath']);
+        }
+        
+        if (is_file($paths['customClassPath'])) {
+            $customFileFound = true;
+            require_once($paths['customClassPath']);
+        }
+        
+
+        if ($coreFileFound || $customFileFound) {
             if (!class_exists("$namespacedClassName") && !interface_exists("$namespacedClassName")) {
-                die("Harness::autoload failure - $namespacedClassName not defined in $classPath\n");
+                die("Harness::autoload failure - $namespacedClassName not defined in {$paths['classPath']} or {$paths['customClassPath']}\n");
             }
         } else {
-            die("Harness::autoload failure - $classPath not found while trying to instantiate $namespacedClassName\n");
+            die("Harness::autoload failure - could not find {$paths['classPath']} or {$paths['customClassPath']} while trying to instantiate $namespacedClassName\n");
         }
         return true;
     }
@@ -354,7 +374,7 @@ class Harness
         
         $formatter = $this->formatterFactory(count($jobClasses));
         
-        ResultsRepository::getInstance()->setFormatter($formatter);
+        $this->repo->setFormatter($formatter);
         foreach ($jobClasses as $classFilePath => $namespacedClassName) {
             $this->job = new $namespacedClassName($this->config);
             $this->transferExceptions($this->job);
@@ -366,7 +386,7 @@ class Harness
             }
         }
         
-        return $formatter->format();
+        return $this->repo->getFormatter()->format();
     }
     
     

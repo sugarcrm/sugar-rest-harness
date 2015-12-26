@@ -239,6 +239,20 @@ class Config
                 continue;
             }
             
+            // special handling for query string (qs)
+            if ($optName == 'qs') {
+                $option[$optionName] = $this->buildQSArrayFromString($optValue);
+                continue;
+            }
+            
+            // special handling for route
+            if ($optName == 'route' && strpos($optValue, '?') > 0) {
+                list($route, $qs) = explode('?', $optValue);
+                $option[$optName] = $route;
+                $option['qs'] = $this->buildQSArrayFromString($qs);
+                continue;
+            }
+            
             $optLevels = explode('.', $optName);
             foreach ($optLevels as $level) {
                 if (!IsSet($option[$level])) {
@@ -279,6 +293,30 @@ class Config
         } else {
             return $postString;
         }
+    }
+    
+    
+    /**
+     * buildQSArrayFromString()
+     *
+     * Takes a url-encoded query string and turns it into a hash, suitable for
+     * our $this->qs array.
+     *
+     * @param string $qsString - a query string.
+     * @return array - a hash of name/value pairs from the string.
+     */
+    public function buildQSArrayFromString($qsString)
+    {
+        $qs = array();
+        if (strpos($qsString, '?') === 0) {
+            $qsString = ltrim($qsString, '?');
+        }
+        $pairs = explode('&', $qsString);
+        foreach ($pairs as $pair) {
+            list($name, $value) = explode('=', $pair);
+            $qs[$name] = urldecode($value);
+        }
+        return $qs;
     }
     
     
