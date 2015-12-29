@@ -153,44 +153,17 @@ class RestConnector
      */
     public function generateRouteMaps()
     {
-        $this->routeMaps = array(
-            'list'                    => array('GET', '$module'),
-            'listFilter'              => array('GET', '$module', 'filter'),
-            'createRecord'            => array('POST', '$module'),
-            'deleteRecord'            => array('DELETE', '$module', '$bean_id'),
-            'retrieveRecord'          => array('GET', '$module', '$bean_id'),
-            'updateRecord'            => array('PUT', '$module', '$bean_id'),
-            'viewChangeLog'           => array('GET', '$module', '$bean_id', 'audit'),
-            'unsetFavorite'           => array('DELETE', '$module', '$bean_id', 'favorite'),
-            'setFavorite'             => array('PUT', '$module', '$bean_id', 'favorite'),
-            'setFavoriteByCustomId'   => array('PUT', '$module', '$bean_id', 'favorite', 'id_field', '$id_field'),
-            'unsetFavoriteByCustomId' => array('DELETE', '$module', '$bean_id', 'favorite', 'id_field', '$id_field'),
-            'getFileList'             => array('GET', '$module', '$bean_id', 'file'),
-            'updateRecordByCustomId'  => array('PUT', '$module', '$bean_id', 'id_field', '$id_field'),
-            'deleteRecordByCustomId'  => array('DELETE', '$module', '$bean_id', 'id_field', '$id_field'),
-            'retrieveRecordByCustomId'=> array('PUT', '$module', '$bean_id', 'id_field', '$id_field'),
-            'createRelatedLinks'      => array('POST', '$module', '$bean_id', 'link'),
-            'createRelatedRecord'     => array('POST', '$module', '$bean_id', 'link', '$linkName'),
-            'filterRelated'           => array('GET', '$module', '$bean_id', 'link', '$linkName'),
-            'getRelatedRecord'        => array('GET', '$module', '$bean_id', 'link', '$linkName', '$linkedBean_id'),
-            'localeOptions'           => array('GET', 'locale'),
-            'retrieveCurrentUser'     => array('GET', 'me'),
-            'updateCurrentUser'       => array('PUT', 'me'),
-            'getMyFollowedRecords'    => array('GET', 'me', 'following'),
-            'updatePassword'          => array('PUT', 'me', 'password'),
-            'verifyPassword'          => array('POST', 'me', 'password'),
-            'userPreferenceUpdate'    => array('PUT', 'me', 'preference', '$prefName'),
-            'userPreferenceDelete'    => array('DELETE', 'me', 'preference', '$prefName'),
-            'userPreferenceSave'      => array('POST', 'me', 'preference', '$prefName'),
-            'userPreference'          => array('GET', 'me', 'preference', '$prefName'),
-            'userPreferences'         => array('GET', 'me', 'preferences'),
-            'search'                  => array('GET', 'search'),
-            'duplicateCheck'          => array('POST', '$module', 'duplicateCheck'),
-            'allMetadata'             => array('GET', 'metadata'),
-            'filterMetadata'          => array('POST', 'metadata'),
-            'listDashboards'          => array('GET', 'Dashboards', '$module'),
-            'getEnumValues'           => array('GET', '$module', 'enum', '$field'),
-        );
+        if (!empty($this->routeMaps)) {
+            return;
+        }
+        
+        require('lib/routeMap.php');
+        $this->routeMaps = $routeMap;
+        
+        if (file_exists('custom/lib/routeMap.php')) {
+            require('custom/lib/routeMap.php');
+            $this->routeMaps = array_merge($this->routeMaps, $routeMap);
+        }
     }
     
     
