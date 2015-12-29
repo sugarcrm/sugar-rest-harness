@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness;
 
 /**
@@ -128,5 +131,34 @@ abstract class JobSeries implements JobInterface
      */
     public function run()
     {
+    }
+    
+    
+    /**
+     * randomize()
+     *
+     * Generates a random value and returns it. Random values must be supported by
+     * the RandomizerFactory class and the Randomizer classes it uses.
+     *
+     * The arguments for randomize must include a $type, which will map to a class
+     * that extends the RandomizerAbstract class and implements the RandomizerInterface.
+     *
+     * The arguments can also optionally include additional information a specific
+     * randomizer will require. See the docs for specific randomizers to see what
+     * additional info they require.
+     *
+     * @param string $type - The type of random data.
+     * @param array $params - a hash of optional additional arguments.
+     */
+    public function randomize($type, $params = array())
+    {
+        $randomDataManager = \SugarRestHarness\RandomizerFactory::getInstance();
+        try {
+            $randomizer = $randomDataManager->loadRandomizer($type);
+            return $randomizer->getRandomData($params);
+        } catch (\SugarRestHarness\Exception $e) {
+            $this->storeException($e);
+            return '';
+        }
     }
 }

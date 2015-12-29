@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness\Expectations;
 
 class Is_empty extends \SugarRestHarness\Expectations\ExpectationsAbstract implements \SugarRestHarness\Expectations\ExpectationsInterface

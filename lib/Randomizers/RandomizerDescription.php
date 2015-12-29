@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness\Randomizers;
 
 require_once("lib/Randomizers/RandomizerAbstract.php");
@@ -35,14 +38,22 @@ class RandomizerDescription extends RandomizerAbstract implements RandomizerInte
         $elements = explode(' ', $pattern);
         
         foreach ($elements as $el) {
-            if (property_exists($this, $el) && is_array($this->$el)) {
-                $description[] = $this->$el[rand(0, (count($this->$el) - 1))];
+            if (property_exists($this, $el)) {
+                if (is_array($this->$el)) {
+                    $data = $this->$el;
+                    $description[] = $data[rand(0, (count($this->$el) - 1))];
+                }
             } else {
                 $description[] = $el;
             }
         }
+        $string = implode(' ', $description);
         
-        return implode(' ', $description);
+        if (!empty($params['maxLength'])) {
+            $string = substr($string, 0, $params['maxLength']);
+        }
+        
+        return $string;
     }
     
     

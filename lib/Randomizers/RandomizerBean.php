@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness\Randomizers;
 
 class RandomizerBean extends RandomizerAbstract implements RandomizerInterface
@@ -21,7 +24,7 @@ class RandomizerBean extends RandomizerAbstract implements RandomizerInterface
      */
     public function getRandomData($params)
     {
-        if (!isset($params['module'])) {
+        if (!isset($params['module']) || empty($params['module'])) {
             throw new RandomDataParamMissing(get_class($this), 'module');
         }
         
@@ -37,7 +40,22 @@ class RandomizerBean extends RandomizerAbstract implements RandomizerInterface
         } else {
             $field = 'id';
         }
-        return $randomBean[$field];
+        
+        $randomData = '';
+        if (!isset($randomBean[$field])) {
+            return $randomData;
+        }
+        
+        if (is_string($field)) {
+            $randomData = $randomBean[$field];
+        } elseif (is_array($field)) {
+            $randomData = array();
+            foreach ($field as $fieldName) {
+                $randomData[$fieldName] = $randomBean[$fieldName];
+            }
+        }
+        
+        return $randomData;
     }
     
     

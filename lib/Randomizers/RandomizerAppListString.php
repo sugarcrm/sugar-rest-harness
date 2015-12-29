@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness\Randomizers;
 
 class RandomizerAppListString extends RandomizerAbstract implements RandomizerInterface
@@ -26,8 +29,9 @@ class RandomizerAppListString extends RandomizerAbstract implements RandomizerIn
         }
         $this->populate();
         $data = $this->parseDataForKey($params['key']);
-        
-        return $data[rand(0, (count($data) - 1))];
+        $indices = array_keys($data);
+        $randomIndex = $indices[rand(0, count($indices) - 1)];
+        return $data[$randomIndex];
     }
     
     

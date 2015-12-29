@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness\Randomizers;
 
 class RandomizerEnum extends RandomizerAbstract implements RandomizerInterface
@@ -19,11 +22,11 @@ class RandomizerEnum extends RandomizerAbstract implements RandomizerInterface
     public function getRandomData($params)
     {
         if (!isset($params['module'])) {
-            throw new RandomDataParamMissing(get_class($this), 'module');
+            throw new \SugarRestHarness\RandomDataParamMissing(get_class($this), 'module');
         }
         
         if (!isset($params['field'])) {
-            throw new RandomDataParamMissing(get_class($this), 'field');
+            throw new \SugarRestHarness\RandomDataParamMissing(get_class($this), 'field');
         }
         
         $module = $params['module'];
@@ -34,7 +37,7 @@ class RandomizerEnum extends RandomizerAbstract implements RandomizerInterface
         }
         
         if (empty($this->data[$module][$field])) {
-            throw new RandomDataNoEnumFieldData($module, $field);
+            throw new \SugarRestHarness\RandomDataNoEnumFieldData($module, $field);
         }
         
         return $this->data[$module][$field][rand(0, (count($this->data[$module][$field]) - 1))];
@@ -61,7 +64,30 @@ class RandomizerEnum extends RandomizerAbstract implements RandomizerInterface
         }
         
         $fieldOptions = $this->sendEnumRestRequest($module, $field);
+        $fieldOptions = $this->scrubData($fieldOptions);
         $this->data[$module][$field] = array_keys($fieldOptions);
+    }
+    
+    
+    /**
+     * scrubData()
+     *
+     * Removes any empty string values from our enums - generally these are not
+     * valid options.
+     *
+     * @param array $data - a hash of name/value pairs (like for a pull down menu).
+     * @return array - $data with any elements where the value is an empty string removed.
+     */
+    public function scrubData($data)
+    {
+        $scrubbedData = array();
+        foreach ($data as $index => $value) {
+            if ($value === '') {
+                continue;
+            }
+            $scrubbedData[$index] = $value;
+        }
+        return $scrubbedData;
     }
     
     

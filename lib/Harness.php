@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness;
 use SugarRestHarness;
 
@@ -25,6 +28,7 @@ class Harness
     {
         $this->registerAutoloader();
         $this->config = \SugarRestHarness\Config::getInstance()->getHarnessConfig();
+        $this->repo = \SugarRestHarness\ResultsRepository::getInstance();
         $this->connector = new RestConnector($this->config);
     }
     
@@ -52,16 +56,35 @@ class Harness
         $className = array_pop($namespaceParts);
         array_shift($namespaceParts);
         $directoryPath = rtrim($installLibDir . '/' . implode('/', $namespaceParts), '/');
+        $customDirectoryPath = str_replace('/lib', '/custom/lib', $directoryPath); 
         
-        $classPath = "{$directoryPath}/{$className}.php";
+        $paths = array(
+            'classPath' => "{$directoryPath}/{$className}.php",
+            'customClassPath' => "{$customDirectoryPath}/{$className}.php",
+        );
         
-        if (is_file($classPath)) {
-            require_once($classPath);
+        $coreFileFound = false;
+        $customFileFound = false;
+        $coreClassInstantiated = false;
+        $customClassInstantiated = false;
+        
+        if (is_file($paths['classPath'])) {
+            $coreFileFound = true;
+            require_once($paths['classPath']);
+        }
+        
+        if (is_file($paths['customClassPath'])) {
+            $customFileFound = true;
+            require_once($paths['customClassPath']);
+        }
+        
+
+        if ($coreFileFound || $customFileFound) {
             if (!class_exists("$namespacedClassName") && !interface_exists("$namespacedClassName")) {
-                die("Harness::autoload failure - $namespacedClassName not defined in $classPath\n");
+                die("Harness::autoload failure - $namespacedClassName not defined in {$paths['classPath']} or {$paths['customClassPath']}\n");
             }
         } else {
-            die("Harness::autoload failure - $classPath not found while trying to instantiate $namespacedClassName\n");
+            die("Harness::autoload failure - could not find {$paths['classPath']} or {$paths['customClassPath']} while trying to instantiate $namespacedClassName\n");
         }
         return true;
     }
@@ -351,7 +374,7 @@ class Harness
         
         $formatter = $this->formatterFactory(count($jobClasses));
         
-        ResultsRepository::getInstance()->setFormatter($formatter);
+        $this->repo->setFormatter($formatter);
         foreach ($jobClasses as $classFilePath => $namespacedClassName) {
             $this->job = new $namespacedClassName($this->config);
             $this->transferExceptions($this->job);
@@ -362,8 +385,12 @@ class Harness
                 $writer->createJobFile();
             }
         }
+        // save the output to a log file if one is specified.
+        $formattedResults = $this->repo->getFormatter()->format();
+        $ext = $this->repo->getFormatter()->getFileExtension();
+        $this->saveToLogFile($formattedResults, $ext);
         
-        return $formatter->format();
+        return $formattedResults;
     }
     
     
@@ -402,5 +429,42 @@ class Harness
                 $target->storeException($exception);
             }
         }
+    }
+    
+    
+    /**
+     * saveToLogFile()
+     *
+     * Writes its argument to a log file, if a log file name has been specified in
+     * the config. The log file name will get the extension specified by the
+     * formatter the harness is using.
+     *
+     * @param string $contents - the stuff you want to write to the log file.
+     * @param string $ext - a file extension. Typically set in the formatter class
+     *  that generated $contents. Default is 'txt';
+     * @return bool - true if there were no errors, false otherwise.
+     */
+    public function saveToLogFile($contents, $ext = 'txt')
+    {
+        $writeFileOK = true;
+        $contents = trim($contents);
+        if (!empty($this->config['log_file'])) {
+            $date = date('Y-m-d_H:i:s');
+            $logFile = str_replace(".$ext", '', $this->config['log_file']);
+            $logFile = "{$logFile}_{$date}.{$ext}";
+            
+            $logDir = pathinfo($logFile, PATHINFO_DIRNAME);
+            
+            if (!file_exists($logDir)) {
+                mkdir($logDir, 0777, true);
+            }
+            
+            $writeFileOK = file_put_contents($logFile, $contents);
+        }
+        
+        if (!$writeFileOK) {
+            print("\nFailed to write to log file $logFile. Log was NOT SAVED.\n");
+        }
+        return $writeFileOK;
     }
 }

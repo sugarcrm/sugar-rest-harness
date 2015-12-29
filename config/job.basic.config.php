@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 $config = array(
     'user_name' => 'admin',              // sugar user_name
     'password' => 'asdf',             // sugar user pass
@@ -13,6 +16,7 @@ $config = array(
     'client_name' => '',              // 'nomad' for mobile, empty for web browser
     'client_id' => 'sugar',           // 'sc_web' for salesconnect, 'sugar' for core
     'client_app_version' => '',       // ex: '2.4.2' for nomad version -- may change in the future as mobile version changes
+    'log_file' => '',                 // set to a file name and the harness's output will be written to that file. Leave empty to have no log file.
     'mode' => 'dev',                  // dev or test - 'test' means 'testing a sugar install', not testing the harness.
     'devFormatter' => array(
         'single' => 'TwoColumn',      // for a single job, use TwoColumn formatting (shows all data)

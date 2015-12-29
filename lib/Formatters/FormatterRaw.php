@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness\Formatters;
 
 require_once('lib/Formatters/FormatterBase.php');
@@ -9,6 +12,7 @@ require_once('lib/Formatters/FormatterBase.php');
  */
 class FormatterRaw extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
+    public $fileExtension = 'json';
     /**
      * format()
      *

@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness;
 
 /**
@@ -69,7 +72,10 @@ class JobWriter
         $filteredConfig = $this->filterConfig();
         $formattedConfig = str_replace("\n", "\n{$indent}{$indent}{$indent}", var_export($filteredConfig, true));
         $lines = array(
-            "<?php",
+            "<?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */",
             "namespace $jobNamespace;",
             "class $className extends \SugarRestHarness\JobAbstract implements \SugarRestHarness\JobInterface",
             "{",

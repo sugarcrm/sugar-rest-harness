@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness;
 
 class Exception extends \Exception 
@@ -32,6 +35,7 @@ class Exception extends \Exception
         $line = $this->getLine();
         $type = get_class($this);
         $msg[] = "Thrown in $file:$line";
+        $msg[] = $this->getTraceAsString();
         return "\n****************\nEXCEPTION: $type\n\n" . implode("\n", $msg) . "\n****************\n\n\n";
     }
     
@@ -100,8 +104,12 @@ class ServerError extends \SugarRestHarness\Exception
         if ($errors && IsSet($errors['error_message'])) {
             if (is_array($errors['error_message'])) {
                 foreach ($errors['error_message'] as $fieldName => $errorMessages) {
-                    foreach ($errorMessages as $errorMessage) {
-                        $msg .= "\n\t$fieldName - $errorMessage";
+                    if (is_array($errorMessages)) {
+                        foreach ($errorMessages as $errorMessage) {
+                            $msg .= "\n\t$fieldName - $errorMessage";
+                        }
+                    } else {
+                        $msg .= "\n\t$fieldName - $errorMessages";
                     }
                 }
             } else {
@@ -165,6 +173,10 @@ class LoginFailure extends \SugarRestHarness\Exception
         
         foreach ($connectorMsgs as $connectorMsgArray) {
             foreach ($connectorMsgArray as $index => $connectorMsg) {
+                if (is_object($connectorMsg) && is_string($connectorMsg->error_message)) {
+                    $connectorMsg = strip_tags($connectorMsg->error_message);
+                }
+                
                 if (is_int($index)) {
                     $strIndex = '';
                 } else {

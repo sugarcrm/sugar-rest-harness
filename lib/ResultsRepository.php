@@ -1,4 +1,7 @@
 <?php
+/*
+ * Copyright (c) 2015 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
 namespace SugarRestHarness;
 
 /**
@@ -108,5 +111,18 @@ class ResultsRepository
     public function setFormatter(\SugarRestHarness\Formatters\FormatterBase $formatter)
     {
         $this->formatter = $formatter;
+    }
+    
+    
+    /**
+     * getFormatter()
+     *
+     * Returns the formatter object of this class.
+     *
+     * @return \SugarRestHarness\Formatter\FormatterBase
+     */
+    public function getFormatter()
+    {
+        return $this->formatter;
     }
 }
