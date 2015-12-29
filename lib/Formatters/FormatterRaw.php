@@ -12,6 +12,7 @@ require_once('lib/Formatters/FormatterBase.php');
  */
 class FormatterRaw extends \SugarRestHarness\Formatters\FormatterBase implements \SugarRestHarness\Formatters\FormatterInterface
 {
+    public $fileExtension = 'json';
     /**
      * format()
      *
