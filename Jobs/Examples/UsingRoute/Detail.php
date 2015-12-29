@@ -10,6 +10,7 @@ class Detail extends \SugarRestHarness\JobAbstract implements \SugarRestHarness\
     {
         // if you set set the route explicitly, you must include the ID of the bean
         // you want to retrieve.
+        $this->config['method'] = 'GET';
         $this->config['route'] = '/Contacts/<bean_id>';
         
         // Note that I don't know what a valid bean id is for

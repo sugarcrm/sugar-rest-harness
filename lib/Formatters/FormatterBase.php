@@ -26,6 +26,8 @@ abstract class FormatterBase implements \SugarRestHarness\Formatters\FormatterIn
         'Expectations' => 'formatExpecationResults',
     );
     
+    public $fileExtension = 'txt';
+    
     public function __construct($config)
     {
         $this->repository = \SugarRestHarness\ResultsRepository::getInstance();
@@ -200,5 +202,26 @@ abstract class FormatterBase implements \SugarRestHarness\Formatters\FormatterIn
         $clear = str_repeat(" ", strlen($output) + 50);
         echo "\r$clear\r";
         echo $output;
+    }
+    
+    
+    /**
+     * getFileExtension()
+     *
+     * Returns the file extension that should be used if this formatter's output
+     * is writtent to a log file. Formatters may specify any extension they like.
+     * The default is txt.
+     *
+     * Extensions should not include the '.' character.
+     *
+     * @return string - the file extension that should be used when this formatter's
+     *  output is written to a file.
+     */
+    public function getFileExtension()
+    {
+        if (!empty($this->fileExtension)) {
+            return $this->fileExtension;
+        }
+        return 'txt';
     }
 }

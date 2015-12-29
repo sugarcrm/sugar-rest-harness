@@ -743,6 +743,8 @@ class RestConnector
      */
     public function sendRequest($url, $type, $data = false)
     {
+        $this->url = $url;
+        $this->method = $type;
         if (!$data && !in_array($type, array('GET', 'DELETE'))) {
             $this->error("Cannot set a '$type' message with no data to $url");
             $this->report();
