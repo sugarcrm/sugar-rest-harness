@@ -754,7 +754,15 @@ class RestConnector
         }
         
         if (!$this->token) {
+            // if we don't have a token, we need to go get one. But it's possible that
+            // $this->url is already set, and if it is then we'll go that url for our
+            // token. That probably won't work becasue $this->url will be set to the
+            // job's url, not the oauth url. So, stash the url, unset $this->url,
+            // then get the token and restore $this->url.
+            $url = $this->url;
+            unset($this->url);
             $token = $this->getToken();
+            $this->url = $url;
         } else {
             $token = $this->token;
         }
