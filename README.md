@@ -128,3 +128,11 @@ are some examples of changing config values on the command line:
 SugarRestHarness -j Jobs/Examples/Contacts/Create.php --user_name=max --password=max 
 --base_url=http://www.sugarexample.com --install_path=/ --post.first_name=Mike --post.last_name=Andersen
 ```
+
+## Contributing
+Everyone is welcome to contribute to this project! If you make a contribution, then the [Contributor Terms](CONTRIBUTOR_TERMS.pdf) apply to your submission.
+
+Please check out our [Contribution Guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier for us to accept your pull requests.
+
+-----
+Copyright (c) 2015, 2016 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
