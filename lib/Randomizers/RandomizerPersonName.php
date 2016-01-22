@@ -20,7 +20,7 @@ class RandomizerPersonName extends RandomizerAbstract implements RandomizerInter
     public function getRandomData($params)
     {
         if (!isset($params['type'])) {
-            throw new RandomDataParamMissing(get_class($this), 'type');
+            throw new \SugarRestHarness\RandomDataParamMissing(get_class($this), 'type');
         }
         
         $type = $params['type'] . 'Names';

@@ -304,7 +304,7 @@ class RestConnector
                     if (IsSet($this->$propName) && !empty($this->$propName)) {
                         $routeSegment = $this->$propName;
                     } else {
-                        throw new MissingRequiredRouteMapComponents($this->jobClass, $propName, $this->routeMap);
+                        throw new \SugarRestHarness\MissingRequiredRouteMapComponents($this->jobClass, $propName, $this->routeMap);
                         $routeSegment = '';
                     }
                 } else {
@@ -322,7 +322,7 @@ class RestConnector
             }
             
         } else {
-            throw new MissingRouteMap();
+            throw new \SugarRestHarness\MissingRouteMap();
         }
     }
     
@@ -345,7 +345,7 @@ class RestConnector
             return $this->routeMaps[$this->routeMap][0];
         }
         
-        throw new NoMethodSet();
+        throw new \SugarRestHarness\NoMethodSet();
     }
     
     
@@ -670,7 +670,7 @@ class RestConnector
                 $this->error($hash);
             }
             $errorData = array($this->msgs, $this->errors, $this->httpReturn);
-            throw new LoginFailure($this->user_name, $url, $errorData);
+            throw new \SugarRestHarness\LoginFailure($this->user_name, $url, $errorData);
             return '';
         }
     }
@@ -754,7 +754,15 @@ class RestConnector
         }
         
         if (!$this->token) {
+            // if we don't have a token, we need to go get one. But it's possible that
+            // $this->url is already set, and if it is then we'll go that url for our
+            // token. That probably won't work becasue $this->url will be set to the
+            // job's url, not the oauth url. So, stash the url, unset $this->url,
+            // then get the token and restore $this->url.
+            $url = $this->url;
+            unset($this->url);
             $token = $this->getToken();
+            $this->url = $url;
         } else {
             $token = $this->token;
         }

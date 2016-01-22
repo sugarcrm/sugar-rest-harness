@@ -39,7 +39,7 @@ class ResultsRepository
     {
         static $instance = null;
         if ($instance === null) {
-            $instance = new ResultsRepository();
+            $instance = new \SugarRestHarness\ResultsRepository();
         }
         return $instance;
     }

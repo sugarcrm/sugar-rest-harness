@@ -60,7 +60,7 @@ abstract class JobAbstract implements JobInterface
         if (!empty($this->config['verbose'])) {
             $this->connector->verbose($this->config['verbose']);
         }
-        $this->expectationsEngine = new ExpectationsEngine($this);
+        $this->expectationsEngine = new \SugarRestHarness\ExpectationsEngine($this);
         $this->expectations['connector.httpReturn.HTTP Return Code']['equals'] = '200';
         $this->expectations['connector.errors']['count'] = 0;
     }
