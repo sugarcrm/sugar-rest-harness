@@ -65,13 +65,13 @@ class RandomizerFactory
         if (!isset($this->randomizers[$className])) {
             $path = "lib/Randomizers/$fileName.php";
             if (!file_exists($path)) {
-                throw new RandomDataTypeDoesNotExist($name);
+                throw new \SugarRestHarness\RandomDataTypeDoesNotExist($name);
             }
             
             require_once($path);
             
             if (!class_exists($className)) {
-                throw new RandomDataClassIsNotDefined($path, $className);
+                throw new \SugarRestHarness\RandomDataClassIsNotDefined($path, $className);
             }
             
             $this->randomizers[$className] = $className::getInstance();
