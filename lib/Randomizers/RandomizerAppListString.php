@@ -25,7 +25,7 @@ class RandomizerAppListString extends RandomizerAbstract implements RandomizerIn
     public function getRandomData($params)
     {
         if (!isset($params['key'])) {
-            throw new RandomDataParamMissing(get_class($this), 'key');
+            throw new \SugarRestHarness\RandomDataParamMissing(get_class($this), 'key');
         }
         $this->populate();
         $data = $this->parseDataForKey($params['key']);
@@ -53,7 +53,7 @@ class RandomizerAppListString extends RandomizerAbstract implements RandomizerIn
             if (isset($arrayOfStrings[$key])) {
                 $arrayOfStrings = $arrayOfStrings[$key];
             } else {
-                throw new RandomDataKeyIsInvalid($fullKey, $key);
+                throw new \SugarRestHarness\RandomDataKeyIsInvalid($fullKey, $key);
             }
         }
         

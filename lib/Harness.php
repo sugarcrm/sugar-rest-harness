@@ -29,7 +29,7 @@ class Harness
         $this->registerAutoloader();
         $this->config = \SugarRestHarness\Config::getInstance()->getHarnessConfig();
         $this->repo = \SugarRestHarness\ResultsRepository::getInstance();
-        $this->connector = new RestConnector($this->config);
+        $this->connector = new \SugarRestHarness\RestConnector($this->config);
     }
     
     
@@ -107,11 +107,11 @@ class Harness
     public function verifyClassFile($classFilePath)
     {
         if (pathinfo($classFilePath, PATHINFO_EXTENSION) != 'php') {
-            throw new NotAPHPFile($classFilePath);
+            throw new \SugarRestHarness\NotAPHPFile($classFilePath);
         }
         
         if (!is_file($classFilePath)) {
-            throw new NotAFile($classFilePath);
+            throw new \SugarRestHarness\NotAFile($classFilePath);
         }
         
         $classRelativePath = $this->getRelativeClassPath($classFilePath);
@@ -119,12 +119,12 @@ class Harness
         require_once($classFilePath);
         
         if (!class_exists($className, false)) {
-            throw new MissingJobClass($className, $classFilePath);
+            throw new \SugarRestHarness\MissingJobClass($className, $classFilePath);
         }
         
         $interfaces = class_implements($className, true); // second arg must be true!
         if (!in_array('SugarRestHarness\\JobInterface', $interfaces)) {
-            throw new DoesNotImplementJobInterface($className, $classFilePath);
+            throw new \SugarRestHarness\DoesNotImplementJobInterface($className, $classFilePath);
         }
         
         return true;
@@ -313,13 +313,13 @@ class Harness
         $classFilePath = "lib/Formatters/{$classBaseName}.php";
         
         if (!file_exists($classFilePath)) {
-            throw new FormatterClassFileNotFound($classFilePath);
+            throw new \SugarRestHarness\FormatterClassFileNotFound($classFilePath);
         }
         
         require_once($classFilePath);
         
         if (!class_exists($className)) {
-            throw new FormatterClassNotDefined($className, $classFilePath);
+            throw new \SugarRestHarness\FormatterClassNotDefined($className, $classFilePath);
         }
         
         $formatter = new $className($this->config);

@@ -79,14 +79,14 @@ class ExpectationsEngine
         
         if (!in_array($className, $this->loadedExpectationTesters)) {
             if (!file_exists($classFilePath)) {
-                throw new ExpectationClassFileNotFound($classFilePath);
+                throw new \SugarRestHarness\ExpectationClassFileNotFound($classFilePath);
             }
             
             require_once($classFilePath);
             $this->loadedExpectationTesters[] = $className;
         
             if (!class_exists($namespacedClassName)) {
-                throw new ExpectationClassNotDefined($className, $classFilePath);
+                throw new \SugarRestHarness\ExpectationClassNotDefined($className, $classFilePath);
             }
         }
         

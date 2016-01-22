@@ -304,7 +304,7 @@ class RestConnector
                     if (IsSet($this->$propName) && !empty($this->$propName)) {
                         $routeSegment = $this->$propName;
                     } else {
-                        throw new MissingRequiredRouteMapComponents($this->jobClass, $propName, $this->routeMap);
+                        throw new \SugarRestHarness\MissingRequiredRouteMapComponents($this->jobClass, $propName, $this->routeMap);
                         $routeSegment = '';
                     }
                 } else {
@@ -322,7 +322,7 @@ class RestConnector
             }
             
         } else {
-            throw new MissingRouteMap();
+            throw new \SugarRestHarness\MissingRouteMap();
         }
     }
     
@@ -345,7 +345,7 @@ class RestConnector
             return $this->routeMaps[$this->routeMap][0];
         }
         
-        throw new NoMethodSet();
+        throw new \SugarRestHarness\NoMethodSet();
     }
     
     
@@ -670,7 +670,7 @@ class RestConnector
                 $this->error($hash);
             }
             $errorData = array($this->msgs, $this->errors, $this->httpReturn);
-            throw new LoginFailure($this->user_name, $url, $errorData);
+            throw new \SugarRestHarness\LoginFailure($this->user_name, $url, $errorData);
             return '';
         }
     }
