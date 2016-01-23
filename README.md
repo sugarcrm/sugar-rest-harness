@@ -7,7 +7,7 @@ installation and then processing the returned results.
 ##Quick-Start Guide
 1. Clone the repo https://github.com/sugarcrm/sugar-rest-harness.git anywhere on your system.
 2. Edit the file custom/config/job.basic.config.php.
-```
+```php
     $config['user_name'] = 'admin';  // replace with a valid sugar user's name
     $config['password'] = 'asdf';    // replace with that user's password
     $config['base_url'] = 'http://localhost';  // replace with the domain name of your sugar install
@@ -29,7 +29,7 @@ Job classes are based on the JobAbstract class. A Job class's construct() method
 the details of the request to be sent in its 'config' property. 
 
 Here is a simple job file example:
-```
+```php
 <?php
 namespace SugarRestHarness\Jobs\Examples\Contacts; // namespace must match path of job file.
 
@@ -75,7 +75,7 @@ will run every job file in Jobs/Examples/Contacts/, but those jobs will not shar
 Then you need a JobSeries class, which can run jobs in a series and pass the results of one job to any 
 subsequent jobs. Here is an example of a JobSeries class file that runs a search job, and then runs an
 update job on every record returned by the search job:
-```
+```php
 <?php
 namespace SugarRestHarness\Jobs\Examples\Contacts; // namespace must match path of job file.
 
