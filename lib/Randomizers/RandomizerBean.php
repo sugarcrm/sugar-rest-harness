@@ -56,7 +56,11 @@ class RandomizerBean extends RandomizerAbstract implements RandomizerInterface
         }
         
         if (count($this->field) == 1) {
-            $randomData = $randomData[$this->field[0]];
+            if (isset($randomData[$this->field[0]])) {
+                $randomData = $randomData[$this->field[0]];
+            } else {
+                $randomData = '';
+            }
         }
         return $randomData;
     }

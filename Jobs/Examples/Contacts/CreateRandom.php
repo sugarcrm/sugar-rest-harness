@@ -26,6 +26,7 @@ class CreateRandom extends \SugarRestHarness\JobAbstract implements \SugarRestHa
             'primary_address_postalcode' => $this->randomize('Number', array('min'=>10000, 'max'=>99999)),
             'primary_address_country' => 'US',
             'account_id' => $this->randomize('Bean', array('module'=>'Accounts', 'field'=>'id')),
+            'assigned_user_id' => $this->getMyId(),
         );
         parent::__construct($options);
     }

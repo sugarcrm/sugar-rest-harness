@@ -516,6 +516,15 @@ class RestConnector
         foreach ($this->stdCURLOptions as $CONST => $value) {
             curl_setopt($this->ch, $CONST, $value);
         }
+        
+        if (!empty($this->cookies)) {
+            $cookies = array();
+            foreach ($this->cookies as $cookieName => $cookieValue) {
+                $cookies[] = "$cookieName=$cookieValue";
+            }
+            $cookieString = implode(';', $cookies);
+            curl_setopt($this->ch, CURLOPT_COOKIE, $cookiesString);
+        }
         return $this->ch;
     }
     
