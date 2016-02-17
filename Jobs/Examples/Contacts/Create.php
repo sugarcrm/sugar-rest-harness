@@ -19,7 +19,7 @@ class Create extends \SugarRestHarness\JobAbstract implements \SugarRestHarness\
             'primary_address_state' => 'TX',
             'primary_address_country' => 'US',
             'title' => 'Guitarist',
-            'assigned_user_id' => '1',
+            'assigned_user_id' => $this->getMyId(),
             'phone_work' => '555-4321',
         );
         parent::__construct($options);

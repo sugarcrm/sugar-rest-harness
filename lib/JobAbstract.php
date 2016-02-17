@@ -229,4 +229,25 @@ abstract class JobAbstract implements JobInterface
             return '';
         }
     }
+    
+    
+    /**
+     * getMyId()
+     */
+    public function getMyId()
+    {
+        static $results;
+        
+        if (!isset($results)) {
+            $config = array(
+                'method' => 'GET',
+                'route' => '/me'
+            );
+        
+            $job = new \SugarRestHarness\Jobs\Generic($config);
+            $job->rawResults = $job->connector->makeRequest();
+            $results = json_decode($job->rawResults, true);
+        }
+        return $results['current_user']['id'];
+    }
 }
