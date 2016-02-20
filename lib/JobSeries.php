@@ -112,7 +112,6 @@ abstract class JobSeries implements JobInterface
      */
     public function runJob($jobClassFilePath)
     {
-        require_once($jobClassFilePath);
         $jobClassName = \SugarRestHarness\Harness::getNamespacedClassName($jobClassFilePath);
         $job = new $jobClassName($this->options);
         $results = $job->run();

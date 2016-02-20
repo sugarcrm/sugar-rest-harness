@@ -50,7 +50,7 @@ class Config
      */
     protected function __construct()
     {
-        $this->installPath = str_replace('/lib', '', pathinfo(__FILE__, PATHINFO_DIRNAME));
+        $this->installPath = \SugarRestHarness\Harness::getAbsolutePath();
     }
     
     
