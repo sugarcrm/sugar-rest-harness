@@ -73,7 +73,7 @@ class ExpectationsEngine
     public function loadExpectationTesterClass($className)
     {
         $className = ucfirst($className);
-        $classFilePath = "lib/Expectations/{$className}.php";
+        $classFilePath = \SugarRestHarness\Harness::getAbsolutePath("lib/Expectations/{$className}.php");
         
         $namespacedClassName = "\\SugarRestHarness\\Expectations\\$className";
         
@@ -82,12 +82,12 @@ class ExpectationsEngine
                 throw new \SugarRestHarness\ExpectationClassFileNotFound($classFilePath);
             }
             
-            require_once($classFilePath);
-            $this->loadedExpectationTesters[] = $className;
-        
             if (!class_exists($namespacedClassName)) {
                 throw new \SugarRestHarness\ExpectationClassNotDefined($className, $classFilePath);
             }
+            // class_exists() will trigger the autoloader to load the correct class file.
+            // if we get this far, our expectation tester is loaded.
+            $this->loadedExpectationTesters[] = $className;
         }
         
         $tester = new $namespacedClassName();

@@ -4,8 +4,6 @@
  */
 namespace SugarRestHarness\Randomizers;
 
-require_once('Jobs/Generic.php');
-
 /**
  * RandomizerAbstract
  *

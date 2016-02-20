@@ -5,7 +5,7 @@
 namespace SugarRestHarness;
 use SugarRestHarness;
 
-require_once("lib/Exceptions.php");
+require_once(\SugarRestHarness\Harness::getAbsolutePath("lib/Exceptions.php"));
 /**
  * Harness
  *
@@ -40,6 +40,36 @@ class Harness
     
     
     /**
+     * getAbsolutePath()
+     *
+     * Returns the absolute path of the passed in file, or if no file is passed in
+     * it returns the absolute path of the directory that the SugarRestHarness is
+     * installed in. 
+     *
+     * The idea is that you pass this method a relative path to a file in this application
+     * and it returns you the absolute path of that file.
+     *
+     * @param string $fileName - a file name or a path to append to the end of this
+     *  this method's return value.
+     * @return string - an absolute path to a file, or the install directory.
+     */
+    public static function getAbsolutePath($fileName='')
+    {
+        static $baseInstallPath;
+        
+        if (!isset($baseInstallPath)) {
+            $baseInstallPath = str_replace('/lib', '', pathinfo(__FILE__, PATHINFO_DIRNAME));
+        }
+            
+        if (substr($fileName, 0, 1) != '/') {
+            $fileName = '/' . $fileName;
+        }
+        
+        return $baseInstallPath . $fileName;
+    }
+    
+    
+    /**
      * autoload()
      *
      * Basic autoloader to load up our job classes and library files. This method only
@@ -51,40 +81,37 @@ class Harness
      */
     private function autoload($namespacedClassName)
     {
-        $installLibDir = pathinfo(__FILE__, PATHINFO_DIRNAME);
+        $installDir = self::getAbsolutePath('/');
+        $installLibDir = self::getAbsolutePath('/lib');
         $namespaceParts = explode('\\', $namespacedClassName);
         $className = array_pop($namespaceParts);
         array_shift($namespaceParts);
+        $namespacePath = rtrim(implode('/', $namespaceParts), '/');
+        $jobPath = "{$installDir}{$namespacePath}";
         $directoryPath = rtrim($installLibDir . '/' . implode('/', $namespaceParts), '/');
         $customDirectoryPath = str_replace('/lib', '/custom/lib', $directoryPath); 
         
         $paths = array(
+            'jobPath' => "{$jobPath}/{$className}.php",
             'classPath' => "{$directoryPath}/{$className}.php",
             'customClassPath' => "{$customDirectoryPath}/{$className}.php",
         );
         
-        $coreFileFound = false;
-        $customFileFound = false;
-        $coreClassInstantiated = false;
-        $customClassInstantiated = false;
-        
-        if (is_file($paths['classPath'])) {
-            $coreFileFound = true;
-            require_once($paths['classPath']);
+        $foundPath = false;
+        foreach ($paths as $pathName => $path) {
+            if (is_file($path)) {
+                $foundPath = "$pathName, which is '$path'";
+                require_once($path);
+            }
         }
-        
-        if (is_file($paths['customClassPath'])) {
-            $customFileFound = true;
-            require_once($paths['customClassPath']);
-        }
-        
 
-        if ($coreFileFound || $customFileFound) {
+        if ($foundPath) {
             if (!class_exists("$namespacedClassName") && !interface_exists("$namespacedClassName")) {
-                die("Harness::autoload failure - $namespacedClassName not defined in {$paths['classPath']} or {$paths['customClassPath']}\n");
+                die("Harness::autoload failure - $namespacedClassName not defined in $foundPath\n");
             }
         } else {
-            die("Harness::autoload failure - could not find {$paths['classPath']} or {$paths['customClassPath']} while trying to instantiate $namespacedClassName\n");
+            $pathMsg = implode(', ', $paths);
+            die("Harness::autoload failure - could not find $pathMsg while trying to instantiate $namespacedClassName\n");
         }
         return true;
     }
@@ -152,8 +179,7 @@ class Harness
                 $absolutePath = $this->config['j'];
             } else {
                 // determine path based on assumed job directory.
-                $jobDir = IsSet($this->config['jobDir']) ? $this->config['jobDir'] : getcwd();
-                $absolutePath = "{$jobDir}/{$this->config['j']}";
+                $absolutePath = self::getAbsolutePath($this->config['j']);
             }
         } else {
             $absolutePath = $path;
@@ -199,7 +225,7 @@ class Harness
      */
     public function getRelativeClassPath($absolutePath)
     {
-        $classRelativePath = str_replace($this->config['jobs_dir'] . '/', '', $absolutePath);
+        $classRelativePath = str_replace(self::getAbsolutePath('/'), '', $absolutePath);
         return $classRelativePath;
     }
     
@@ -310,7 +336,7 @@ class Harness
     {
         $classNameParts = explode('\\', $className);
         $classBaseName = $classNameParts[count($classNameParts) - 1];
-        $classFilePath = "lib/Formatters/{$classBaseName}.php";
+        $classFilePath = self::getAbsolutePath("lib/Formatters/{$classBaseName}.php");
         
         if (!file_exists($classFilePath)) {
             throw new \SugarRestHarness\FormatterClassFileNotFound($classFilePath);

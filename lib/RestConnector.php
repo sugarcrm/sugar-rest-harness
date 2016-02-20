@@ -160,11 +160,13 @@ class RestConnector
             return;
         }
         
-        require('lib/routeMap.php');
+        $coreRouteMapPath = \SugarRestHarness\Harness::getAbsolutePath('lib/routeMap.php');
+        require($coreRouteMapPath);
         $this->routeMaps = $routeMap;
         
-        if (file_exists('custom/lib/routeMap.php')) {
-            require('custom/lib/routeMap.php');
+        $customRouteMapPath = \SugarRestHarness\Harness::getAbsolutePath('custom/lib/routeMap.php');
+        if (file_exists($customRouteMapPath)) {
+            require($customRouteMapPath);
             $this->routeMaps = array_merge($this->routeMaps, $routeMap);
         }
     }
@@ -523,7 +525,7 @@ class RestConnector
                 $cookies[] = "$cookieName=$cookieValue";
             }
             $cookieString = implode(';', $cookies);
-            curl_setopt($this->ch, CURLOPT_COOKIE, $cookiesString);
+            curl_setopt($this->ch, CURLOPT_COOKIE, $cookieString);
         }
         return $this->ch;
     }
