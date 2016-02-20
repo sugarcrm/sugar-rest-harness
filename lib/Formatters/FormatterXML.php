@@ -4,7 +4,6 @@
  */
 namespace SugarRestHarness\Formatters;
 
-require_once('lib/Formatters/FormatterInterface.php');
 /**
  * FormatterXML
  *

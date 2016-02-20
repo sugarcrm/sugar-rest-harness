@@ -63,7 +63,7 @@ class RandomizerFactory
         $className = "\SugarRestHarness\Randomizers\Randomizer{$name}";
         
         if (!isset($this->randomizers[$className])) {
-            $path = "lib/Randomizers/$fileName.php";
+            $path = \SugarRestHarness\Harness::getAbsolutePath("lib/Randomizers/$fileName.php");
             if (!file_exists($path)) {
                 throw new \SugarRestHarness\RandomDataTypeDoesNotExist($name);
             }

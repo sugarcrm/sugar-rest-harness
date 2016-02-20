@@ -4,8 +4,6 @@
  */
 namespace SugarRestHarness\Randomizers;
 
-require_once("lib/Randomizers/RandomizerAbstract.php");
-
 class RandomizerDescription extends RandomizerAbstract implements RandomizerInterface
 {
     public $adj = array();
