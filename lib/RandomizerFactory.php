@@ -46,16 +46,13 @@ class RandomizerFactory
     /**
      * Loads the specified type of Randomizer. Randomizer names must match an
      * existing Randomizer class, i.e. RandomizerNumber, which must be defined in
-     * Randomizers/RandomizerNumber.php.
+     * lib/Randomizers/RandomizerNumber.php or custom/lib/Randomizers/RandomizerNumber.php.
      *
-     * This function will require the class file (if it exists), instantiate the
-     * class, cache it in this class's randomizers array, and return the instantiated
-     * class.
+     * This function will cache an instantiaion of the specified class in this 
+     * class's randomizers array, and return the instantiated class.
      *
      * @param string $name - the name of the randomizer you want to load.
      * @return RandomizerAbstact - a randomizer object.
-     * @throws RandomDataTypeDoesNotExist
-     * @throws RandomDataClassIsNotDefined
      */
     public function loadRandomizer($name)
     {
@@ -63,17 +60,6 @@ class RandomizerFactory
         $className = "\SugarRestHarness\Randomizers\Randomizer{$name}";
         
         if (!isset($this->randomizers[$className])) {
-            $path = \SugarRestHarness\Harness::getAbsolutePath("lib/Randomizers/$fileName.php");
-            if (!file_exists($path)) {
-                throw new \SugarRestHarness\RandomDataTypeDoesNotExist($name);
-            }
-            
-            require_once($path);
-            
-            if (!class_exists($className)) {
-                throw new \SugarRestHarness\RandomDataClassIsNotDefined($path, $className);
-            }
-            
             $this->randomizers[$className] = $className::getInstance();
         }
         
