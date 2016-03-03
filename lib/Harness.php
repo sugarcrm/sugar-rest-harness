@@ -88,32 +88,52 @@ class Harness
         array_shift($namespaceParts);
         $namespacePath = rtrim(implode('/', $namespaceParts), '/');
         $jobPath = "{$installDir}{$namespacePath}";
-        $directoryPath = rtrim($installLibDir . '/' . implode('/', $namespaceParts), '/');
+        $directoryPath = rtrim($installLibDir . '/' . $namespacePath);
         $customDirectoryPath = str_replace('/lib', '/custom/lib', $directoryPath); 
         
         $paths = array(
             'jobPath' => "{$jobPath}/{$className}.php",
-            'classPath' => "{$directoryPath}/{$className}.php",
             'customClassPath' => "{$customDirectoryPath}/{$className}.php",
+            'classPath' => "{$directoryPath}/{$className}.php",
         );
         
+        try {
+            $this->searchClassPaths($namespacedClassName, $paths);
+        } catch (Exception $e) {
+            die($e->output());
+        }
+        return true;
+    }
+    
+    
+    /**
+     * searchClassPaths()
+     *
+     * Searches each path passed to it in $paths for the class name $namespacedClassName.
+     * The class will be available to be instantiated thanks to a call to class_exists()
+     * and the magic of spl_autoload_register(). Throws exceptions if the class file
+     * is not found in any location, or if the class file does not define the specified
+     * class.
+     */
+    public function searchClassPaths($namespacedClassName, $paths)
+    {
         $foundPath = false;
         foreach ($paths as $pathName => $path) {
             if (is_file($path)) {
                 $foundPath = "$pathName, which is '$path'";
                 require_once($path);
+                break;
             }
         }
 
         if ($foundPath) {
             if (!class_exists("$namespacedClassName") && !interface_exists("$namespacedClassName")) {
-                die("Harness::autoload failure - $namespacedClassName not defined in $foundPath\n");
+                throw new ClassIsNotDefined($namespacedClassName, $paths);
             }
         } else {
-            $pathMsg = implode(', ', $paths);
-            die("Harness::autoload failure - could not find $pathMsg while trying to instantiate $namespacedClassName\n");
+            $pathMsg = implode(",\n", $paths);
+            throw new ClassFileNotFound($namespacedClassName, $paths);
         }
-        return true;
     }
     
     
@@ -312,43 +332,13 @@ class Harness
         
         $className = "\SugarRestHarness\Formatters\Formatter{$className}";
         try {
-            $formatter = $this->loadFormatterClass($className);
+            $formatter = new $className($this->config);
         } catch (Exception $e) {
             // load the default.
-            $formatter = $this->loadFormatterClass("\SugarRestHarness\Formatters\FormatterTwoColumn");
+            $class_name = "\SugarRestHarness\Formatters\FormatterTwoColumn";
+            $formatter = new $className($this->config);
             $this->storeException($e);
         }
-        return $formatter;
-    }
-    
-    
-    /**
-     * loadFormatterClass()
-     *
-     * Loads the specified formatter class. Throws exceptions if the class file
-     * cannot be found or if the class isn't defined in the class file.
-     *
-     * @param string $className - the name of the formatter class you want to load.
-     * @return FormatterBase - an object that extends the FormatterBase class.
-     * @throws FormatterClassFileNotFound, FormatterClassNotDefined
-     */
-    public function loadFormatterClass($className)
-    {
-        $classNameParts = explode('\\', $className);
-        $classBaseName = $classNameParts[count($classNameParts) - 1];
-        $classFilePath = self::getAbsolutePath("lib/Formatters/{$classBaseName}.php");
-        
-        if (!file_exists($classFilePath)) {
-            throw new \SugarRestHarness\FormatterClassFileNotFound($classFilePath);
-        }
-        
-        require_once($classFilePath);
-        
-        if (!class_exists($className)) {
-            throw new \SugarRestHarness\FormatterClassNotDefined($className, $classFilePath);
-        }
-        
-        $formatter = new $className($this->config);
         return $formatter;
     }
     
