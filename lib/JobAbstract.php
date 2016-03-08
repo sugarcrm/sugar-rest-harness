@@ -233,6 +233,12 @@ abstract class JobAbstract implements JobInterface
     
     /**
      * getMyId()
+     *
+     * Gets the user id of the currently logged in user via a Separate REST call
+     * to the /me endpoint. The results are cached so multiple calls don't result
+     * in multiple REST requests for the same data.
+     *
+     * @return string - an ID for the current user.
      */
     public function getMyId()
     {
@@ -249,5 +255,45 @@ abstract class JobAbstract implements JobInterface
             $results = json_decode($job->rawResults, true);
         }
         return $results['current_user']['id'];
+    }
+    
+    
+    /**
+     * setExpectation()
+     *
+     * Sets an expectation for this job.
+     *
+     * @param string $expectationName - the name the expectation, which should
+     *  be a dot-delimited path to a property of this job object, i.e. results.first_name,
+     *  or results.records.0.description, or connector.errors
+     * @param string $operator - the expectation operator. @see lib/Exptations for
+     *  valid operators.
+     * @param mixed $expectedValue - what you expect the property named by $expectationName
+     *  to be set to.
+     */
+    public function setExpectation($expectationName, $operator, $expectedValue)
+    {
+        $this->expectations[$expectationName][$operator] = $expectedValue;
+        if ($expectationName == 'connector.httpReturn.HTTP Return Code' && $operator == 'equals') {
+            $this->setExpectedHTTPReturnCode($expectedValue);
+        }
+    }
+    
+    
+    /**
+     * setExpectedHTTPReturnCode()
+     *
+     * Sets the expected return code on the connector. If the request this job's connector
+     * sends returns an http return code value that is different from what you set here, a
+     * ServerError exception will be thrown in the connector's sendRequest() method.
+     *
+     * The default value is '200'.
+     *
+     * @param string $code - the expected return code, i.e. 200, 404, 500, etc.
+     */
+    public function setExpectedHTTPReturnCode($code)
+    {
+        $this->expectations['connector.httpReturn.HTTP Return Code']['equals'] = $code;
+        $this->connector->setExpectedHTTPReturnCode($code);
     }
 }
