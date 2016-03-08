@@ -78,6 +78,7 @@ class RestConnector
     public $prefName = '';
     public $jobClass = '';
     public $filters = array();
+    public $expectedHTTPReturnCode = '200';
     
     public $msgs = array();
     public $errors = array();
@@ -808,8 +809,9 @@ class RestConnector
             $results = curl_exec($ch);
             $this->collecthttpReturn($ch);
             curl_close($ch);
-            if ($this->httpReturn['HTTP Return Code'] != '200') {
-                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $results);
+            if ($this->httpReturn['HTTP Return Code'] != $this->expectedHTTPReturnCode 
+                && $this->httpReturn['HTTP Return Code'] != '200') {
+                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $this->expectedHTTPReturnCode, $results);
             }
             return $results;
         } else {
@@ -817,7 +819,23 @@ class RestConnector
             $this->report();
             return false;
         }
-        
+    }
+    
+    
+    /**
+     * setExpectedHTTPReturnCode()
+     *
+     * Sets the expected return code. If the request this connector sends returns
+     * an http return code value that is different from what you set here, a
+     * ServerError exception will be thrown in the sendRequest() method.
+     *
+     * The default value is '200'.
+     *
+     * @param string $code - the expected return code, i.e. 200, 404, 500, etc.
+     */
+    public function setExpectedHTTPReturnCode($code)
+    {
+        $this->expectedHTTPReturnCode = $code;
     }
     
     

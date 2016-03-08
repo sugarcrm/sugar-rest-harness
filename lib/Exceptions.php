@@ -93,9 +93,9 @@ class ServerError extends \SugarRestHarness\Exception
         '503' => 'Server is in Mainenance mode',
     );
     
-    public function __construct($httpReturnCode, $errors)
+    public function __construct($httpReturnCode, $expectedReturnCode, $errors)
     {
-        $msg = "Server returned a $httpReturnCode error";
+        $msg = "Server returned a $httpReturnCode error, expected a $expectedReturnCode";
         if (IsSet($this->msgMap[$httpReturnCode])) {
             $msg .= " - {$this->msgMap[$httpReturnCode]}";
         }

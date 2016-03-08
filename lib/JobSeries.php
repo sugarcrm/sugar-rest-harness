@@ -33,6 +33,7 @@ abstract class JobSeries implements JobInterface
     public $results = array();
     public $options = array();
     public $config = null;
+    public $expectations = array();
     
     /**
      * __construct()
@@ -101,6 +102,77 @@ abstract class JobSeries implements JobInterface
     
     
     /**
+     * setExpectation()
+     *
+     * Sets an expectation for the next job to be run. Expectations will be reset after
+     * every job.
+     *
+     * @param string $expectationName - the name the expectation, which should
+     *  be a dot-delimited path to a property of this job object, i.e. results.first_name,
+     *  or results.records.0.description, or connector.errors
+     * @param string $operator - the expectation operator. @see lib/Exptations for
+     *  valid operators.
+     * @param mixed $expectedValue - what you expect the property named by $expectationName
+     *  to be set to.
+     */
+    public function setExpectation($expectationName, $operator, $expectedValue)
+    {
+        $this->expectations[$expectationName][$operator] = $expectedValue;
+    }
+    
+    
+    /**
+     * setExpectedHTTPReturnCode()
+     *
+     * Sets the expected return code on the job to be run. If the request that job's connector
+     * sends returns an http return code value that is different from what you set here, a
+     * ServerError exception will be thrown in the connector's sendRequest() method.
+     *
+     * The default value is '200'.
+     *
+     * Like any other expectation, this one will be reset after every job the job
+     * series executes.
+     *
+     * @param string $code - the expected return code, i.e. 200, 404, 500, etc.
+     */
+    public function setExpectedHTTPReturnCode($code)
+    {
+        $this->expectations['connector.httpReturn.HTTP Return Code']['equals'] = $code;
+    }
+    
+    
+    /**
+     * clearExpectatations()
+     *
+     * Resets the expectations for th
+     */
+    public function clearExpectatations()
+    {
+        $this->expectations = array();
+    }
+    
+    
+    /**
+     * transferExpectations()
+     *
+     * Transfers any expectations set on this job series from the job series to the
+     * job passed into this method. Then the expectations on this series are reset,
+     * so expectations will not be passed to subsequent jobs.
+     *
+     * @param JobAbstract $jobObject - a job to set expectations on.
+     */
+    public function transferExpectations(&$jobObject)
+    {
+        foreach ($this->expectations as $expectationName => $operatorExpectedValuePair) {
+            foreach ($operatorExpectedValuePair as $operator => $expectedValue) {
+                $jobObject->setExpectation($expectationName, $operator, $expectedValue);
+            }
+        }
+        $this->clearExpectatations();
+    }
+    
+    
+    /**
      * runJob()
      *
      * This function will instantiate the passed-in $jobClassName and call its run()
@@ -114,6 +186,7 @@ abstract class JobSeries implements JobInterface
     {
         $jobClassName = \SugarRestHarness\Harness::getNamespacedClassName($jobClassFilePath);
         $job = new $jobClassName($this->options);
+        $this->transferExpectations($job);
         $results = $job->run();
         $this->results[] = $results;
         return $job;
