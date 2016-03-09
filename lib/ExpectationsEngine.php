@@ -33,7 +33,6 @@ class ExpectationsEngine
 {
     protected $job;
     protected $exceptions = array();
-    protected $loadedExpectationTesters = array();
     
     
     /**
@@ -61,9 +60,9 @@ class ExpectationsEngine
     /**
      * loadExpectationTesterClass()
      *
-     * Searches for the correct expectation class file and loads it. Throws an
-     * Exception if it can't find the file or if the file doesn't define the
-     * necessary class. Returns an instantiation of the required expectation
+     * Searches for the correct expectation class file and loads it. If the file
+     * cannot be found, or does not define the specified class, the Harness's autoload
+     * method will throw an exception. Returns an instantiation of the required expectation
      * tester class.
      *
      * @param string $className - the name of an expectation class.
@@ -73,22 +72,7 @@ class ExpectationsEngine
     public function loadExpectationTesterClass($className)
     {
         $className = ucfirst($className);
-        $classFilePath = \SugarRestHarness\Harness::getAbsolutePath("lib/Expectations/{$className}.php");
-        
         $namespacedClassName = "\\SugarRestHarness\\Expectations\\$className";
-        
-        if (!in_array($className, $this->loadedExpectationTesters)) {
-            if (!file_exists($classFilePath)) {
-                throw new \SugarRestHarness\ExpectationClassFileNotFound($classFilePath);
-            }
-            
-            if (!class_exists($namespacedClassName)) {
-                throw new \SugarRestHarness\ExpectationClassNotDefined($className, $classFilePath);
-            }
-            // class_exists() will trigger the autoloader to load the correct class file.
-            // if we get this far, our expectation tester is loaded.
-            $this->loadedExpectationTesters[] = $className;
-        }
         
         $tester = new $namespacedClassName();
         return $tester;

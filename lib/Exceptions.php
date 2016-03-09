@@ -93,9 +93,9 @@ class ServerError extends \SugarRestHarness\Exception
         '503' => 'Server is in Mainenance mode',
     );
     
-    public function __construct($httpReturnCode, $errors)
+    public function __construct($httpReturnCode, $expectedReturnCode, $errors)
     {
-        $msg = "Server returned a $httpReturnCode error";
+        $msg = "Server returned a $httpReturnCode error, expected a $expectedReturnCode";
         if (IsSet($this->msgMap[$httpReturnCode])) {
             $msg .= " - {$this->msgMap[$httpReturnCode]}";
         }
@@ -222,26 +222,6 @@ class WriteToFileFailed extends \SugarRestHarness\Exception
 }
 
 
-class RandomDataTypeDoesNotExist extends \SugarRestHarness\Exception
-{
-    public function __construct($badType)
-    {
-        $msg = "There is no Randomizer class 'Randomizer$badType'. Please check your randomizer type name.";
-        parent::__construct($msg);
-    }
-}
-
-
-class RandomDataClassIsNotDefined extends \SugarRestHarness\Exception
-{
-    public function __construct($filePath, $className)
-    {
-        $msg = "The randomizer file $filePath does not define the class '$className'.";
-        parent::__construct($msg);
-    }
-}
-
-
 class RandomDataKeyIsInvalid extends \SugarRestHarness\Exception
 {
     public function __construct($badKey, $finalKey)
@@ -282,41 +262,30 @@ class RandomDataAppListStringNotFound extends \SugarRestHarness\Exception
 }
 
 
-class ExpectationClassFileNotFound extends \SugarRestHarness\Exception
-{
-    public function __construct($classFilePath)
-    {
-        $msg = "The file '$classFilePath' does not exist or could not be opened.";
-        parent::__construct($msg);
-    }
-}
-
-
-class ExpectationClassNotDefined extends \SugarRestHarness\Exception
+class ClassFileNotFound extends \SugarRestHarness\Exception
 {
     public function __construct($className, $classFilePath)
     {
-        $msg = "The file '$classFilePath' does not define $className. Please make sure the class is is correct, including the namespace.";
+        if (is_array($classFilePath)) {
+            $classFilePath = implode(",\n", $classFilePath);
+        }
+        
+        $msg = "While trying to instantiate $className, we looked for class files in these locations:\n$classFilePath\n";
+        $msg .= "None of them exist or they are not readable. Please check your class name and files.";
         parent::__construct($msg);
     }
 }
 
 
-class FormatterClassFileNotFound extends \SugarRestHarness\Exception
-{
-    public function __construct($classFilePath)
-    {
-        $msg = "The file '$classFilePath' does not exist or could not be opened.";
-        parent::__construct($msg);
-    }
-}
-
-
-class FormatterClassNotDefined extends \SugarRestHarness\Exception
+class ClassIsNotDefined extends \SugarRestHarness\Exception
 {
     public function __construct($className, $classFilePath)
     {
-        $msg = "The file '$classFilePath' does not define $className. Please make sure the class is is correct, including the namespace.";
+        if (is_array($classFilePath)) {
+            $classFilePath = implode(",\n", $classFilePath);
+        }
+        
+        $msg = "The class $className is not defined in any of these locations:\n$classFilePath.\nPlease make sure the class name is is correct, including the namespace.";
         parent::__construct($msg);
     }
 }
