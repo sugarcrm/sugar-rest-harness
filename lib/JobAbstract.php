@@ -242,19 +242,26 @@ abstract class JobAbstract implements JobInterface
      */
     public function getMyId()
     {
-        static $results;
+        $myID = \SugarRestHarness\Config::getInstance()->getMyId();
         
-        if (!isset($results)) {
+        if (empty($myID)) {
             $config = array(
                 'method' => 'GET',
                 'route' => '/me'
             );
-        
+            
             $job = new \SugarRestHarness\Jobs\Generic($config);
-            $job->rawResults = $job->connector->makeRequest();
+            
+            try {
+                $job->rawResults = $job->connector->makeRequest();
+            } catch (Exception $e) {
+                $e->output();
+            }
+            
             $results = json_decode($job->rawResults, true);
+            $myID = \SugarRestHarness\Config::getInstance()->setMyId($results['current_user']['id']);
         }
-        return $results['current_user']['id'];
+        return $myID;
     }
     
     
