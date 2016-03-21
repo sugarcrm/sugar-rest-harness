@@ -34,7 +34,7 @@ class FormatterConcise extends \SugarRestHarness\Formatters\FormatterBase implem
         $resultsStrings = array();
         foreach ($results as $result) {
             $parts = array();
-            $success = $result->connector->httpReturn['HTTP Return Code'] == '200' ? 'Success' : 'Failed';
+            $success = $result->connector->receivedExpectedHTTPReturnCode() ? 'Success' : 'Failed';
             $resultsStrings[] = "\n{$result->id} $success";
             foreach ($this->headersAndMethods as $header => $method) {
                 $formattedString = trim($this->$method($result));
@@ -85,7 +85,7 @@ class FormatterConcise extends \SugarRestHarness\Formatters\FormatterBase implem
      */
     public function formatHTTPReturn(\SugarRestHarness\JobAbstract $jobObj)
     {
-        if ($jobObj->connector->httpReturn['HTTP Return Code'] == '200') {
+        if ($jobObj->connector->receivedExpectedHTTPReturnCode()) {
             return "Content-Length: " . $jobObj->connector->httpReturn['Content-Length'];
         } else {
             return parent::formatHTTPReturn($jobObj);

@@ -658,6 +658,11 @@ class RestConnector
      */
     public function getToken()
     {
+        $token = \SugarRestHarness\Config::getInstance()->getToken();
+        if (!empty($token)) {
+            return $token;
+        }
+
         $url = $this->getURL('/oauth2/token');
         $this->msg("getting token from $url for {$this->user_name}");
         $data = $this->getTokenPostData();
@@ -671,6 +676,7 @@ class RestConnector
         if (!empty($token) && is_object($hash) && property_exists($hash, 'access_token')) {
             $this->msg("Received token {$hash->access_token}");
             $this->token = $hash->access_token;
+            \SugarRestHarness\Config::getInstance()->setToken($hash->access_token);
             return $hash->access_token;
         } else {
             $this->error("Did not receive an access token from OAuth2 request! Bad password?");
@@ -809,8 +815,7 @@ class RestConnector
             $results = curl_exec($ch);
             $this->collecthttpReturn($ch);
             curl_close($ch);
-            if ($this->httpReturn['HTTP Return Code'] != $this->expectedHTTPReturnCode 
-                && $this->httpReturn['HTTP Return Code'] != '200') {
+            if (!$this->receivedExpectedHTTPReturnCode()) {
                 throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $this->expectedHTTPReturnCode, $results);
             }
             return $results;
@@ -836,6 +841,18 @@ class RestConnector
     public function setExpectedHTTPReturnCode($code)
     {
         $this->expectedHTTPReturnCode = $code;
+    }
+    
+    
+    public function receivedExpectedHTTPReturnCode()
+    {
+        if (!isset($this->httpReturn['HTTP Return Code'])) {
+            return false;
+        }
+        
+        return $this->httpReturn['HTTP Return Code'] == $this->expectedHTTPReturnCode 
+            || $this->httpReturn['HTTP Return Code'] == '200';
+            
     }
     
     

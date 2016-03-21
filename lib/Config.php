@@ -42,6 +42,12 @@ class Config
     /** @var array all options in the job's config array. */
     public $jobConfigParams = array();
     
+    /** @var string the OAuth2 token value */
+    public $token = '';
+    
+    /** @var string the ID of the currently logged in user (NOT the user_name, the id) */
+    public $myId = '';
+    
     
     /**
      * __construct()
@@ -345,6 +351,7 @@ class Config
         $this->importConfigFile($this->getConfigFileName());
         $configParams = $this->merge($this->configFileOptions, $jobConfigHash);
         $configParams = $this->merge($configParams, $this->commandLineOptions);
+        $configParams['token'] = $this->token;
         return $configParams;
     }
     
@@ -430,7 +437,7 @@ class Config
         $this->processArgv();
         $this->importConfigFile($this->getConfigFileName());
         $configParams = array();
-        $configParams = array_merge($this->configFileOptions, $this->commandLineOptions);
+        $configParams = array_merge($this->configFileOptions, $this->commandLineOptions, array('token' => $this->token));
         return $configParams;
     }
     
@@ -451,5 +458,69 @@ class Config
             $configFileName = $this->commandLineOptions['configFileName'];
         }
         return $configFileName;
+    }
+    
+    
+    /**
+     * setToken()
+     *
+     * Sets the OAuth2 token on this object for later retrieval.
+     *
+     * @param string $token - an OAuth2 token.
+     * @param bool $force - optional, default is false. If $force is true, set the
+     *  token to whatever value was passed in $token.
+     * @return string - the token currently set on this object.
+     */
+    public function setToken($token, $force=false)
+    {
+        if (empty($this->token) || $force) {
+            $this->token = $token;
+        }
+        return $this->token;
+    }
+    
+    
+    /**
+     * getToken()
+     *
+     * Returns the current OAuth2 token on this object.
+     *
+     * @return string  - the current OAuth2 token.
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+    
+    
+    /**
+     * setMyId()
+     *
+     * Sets the ID of the current user for retrieval by multiple jobs running under
+     * the same user.
+     *
+     * @param string $token - a user id (ID, not user_name).
+     * @param bool $force - optional, default is false. If $force is true, set the
+     *  myId to whatever value was passed in $id.
+     * @return string - the user id currently set on this object.
+     */
+    public function setMyId($id, $force=false) {
+        if (empty($this->myId) || $force) {
+            $this->myId = $id;
+        }
+        return $this->myId;
+    }
+    
+    
+    /**
+     * getMyId()
+     *
+     * Returns the current user id on this object.
+     *
+     * @return string  - the current user id.
+     */
+    public function getMyId()
+    {
+        return $this->myId;
     }
 }
