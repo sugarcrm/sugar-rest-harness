@@ -23,8 +23,8 @@ if something isn't configured right.
     
 
 ## What are "Jobs"?
-"Jobs" are a single request sent to the SugarCRM install you're working with. 
-Job files define all the parameters a single, specific request will send to the server.
+"Jobs" are a single request sent to the Sugar instance you're working with. 
+Job files define all the parameters that a single specific request will send to the server.
 Job classes are based on the JobAbstract class. A Job class's construct() method will define
 the details of the request to be sent in its 'config' property. 
 
