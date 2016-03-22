@@ -1,6 +1,6 @@
 - What is the SugarRestHarness?
-  The SugarRestHarness is a command line tool for sending REST requests to a SugarCRM
-  installation and displaying the results back to you. It can be configured to send
+  The SugarRestHarness is a command line tool for sending REST requests to a Sugar
+  instance and locally logging the results. It can be configured to send
   any valid REST request to any Sugar installation as any user. Multiple output
   formats are available and more are easy to add. Configurations for your REST 
   requests are stored in job files for easy retrieval, and can easily be overwritten
@@ -21,13 +21,6 @@
   1) Get it.
   2) Configure it.
   3) Run it.
-
-
-- How do I get it?  
-  The SRH lives in our salesconnect repo, at ibm/SugarRestHarness. So you already 
-  have it. You can also clone from git:
-  You can also copy it from ibm/SugarRestHarness to a separate directory on your VM
-  if you want to make modifications but don't want to commit them to git.
 
 
 - How do I configure it?
