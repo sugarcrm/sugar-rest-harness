@@ -21,7 +21,6 @@ class RestConnector
         'user_name',
         'password',
         'base_url', // i.e. http://yavin4
-        'install_path', // i.e. /46102/ult/sugarcrm
         'rest_dir', // i.e. /rest
         'rest_version_dir', // i.e. /v10
         'user_agent_string',
