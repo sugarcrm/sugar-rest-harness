@@ -39,6 +39,10 @@ class Contains extends \SugarRestHarness\Expectations\ExpectationsAbstract imple
                 $met = in_array($expected, $actual);
                 $actual = 'an array';
                 break;
+            case 'object':
+                $met = property_exists($actual, $expected);
+                $actual = 'an object';
+                break;
             case 'NULL':
                 $met = is_null($expected);
                 break;
