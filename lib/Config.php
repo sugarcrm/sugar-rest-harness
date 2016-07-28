@@ -403,7 +403,8 @@ class Config
             if (!IsSet($baseArray[$index])) {
                 $returnArray[$index] = $value;
             } else {
-                if (is_array($baseArray[$index]) && is_array($overwriterArray[$index]) && $this->isHash($overwriterArray[$index])) {
+                if (is_array($baseArray[$index]) && is_array($overwriterArray[$index])
+                    && ($this->isHash($overwriterArray[$index]) || $this->isNestedArray($overwriterArray[$index]))) {
                     $returnArray[$index] = $this->merge($baseArray[$index], $overwriterArray[$index]);
                 } else {
                     $returnArray[$index] = $overwriterArray[$index];
@@ -413,7 +414,16 @@ class Config
         return $returnArray;
     }
     
-    
+
+    public function isNestedArray($array)
+    {
+        if (isset($array[0]) && !is_scalar($array[0])) {
+            return true;
+        }
+        return false;
+    }
+
+
     public function isHash($array)
     {
         return array_keys($array) !== range(0, count($array) - 1);
