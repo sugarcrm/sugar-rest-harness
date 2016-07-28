@@ -253,6 +253,8 @@ class RestConnector
      */
     public function getURL($route)
     {
+        $queryString = '';
+        
         if (IsSet($this->url)) {
             $this->msg("REST Service URL is {$this->url}");
             return $this->url;
@@ -272,7 +274,9 @@ class RestConnector
         );
         $url = implode('', $urlPieces);
         
-        $queryString = $this->buildQueryString();
+        if ($route != '/oauth2/token') {
+            $queryString = $this->buildQueryString();
+        }
         
         if (!empty($queryString)) {
             $url .= "?$queryString"; 
