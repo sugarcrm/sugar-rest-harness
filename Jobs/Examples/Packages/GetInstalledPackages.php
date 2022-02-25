@@ -14,6 +14,6 @@ class GetInstalledPackages extends \SugarRestHarness\JobAbstract implements \Sug
 
     public function getDescriptor()
     {
-        return "Found " . count($this->results->packages) . " installed packages";
+        return "Found " . count((array) $this->results->packages) . " installed packages";
     }
 }

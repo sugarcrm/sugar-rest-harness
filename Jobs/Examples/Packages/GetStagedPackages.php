@@ -14,6 +14,6 @@ class GetStagedPackages extends \SugarRestHarness\JobAbstract implements \SugarR
 
     public function getDescriptor()
     {
-        return "Found " . count($this->results->packages) . " staged packaged";
+        return "Found " . count((array) $this->results->packages) . " staged packages";
     }
 }

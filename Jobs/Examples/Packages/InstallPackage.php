@@ -20,7 +20,7 @@ class InstallPackage extends \SugarRestHarness\JobAbstract implements \SugarRest
         if (!isset($this->config['package_name'])) {
             $this->config['descriptor'] = $this->config['package_file_hash'];
         } else {
-            $this->config['package_name'] .= "({$this->config['package_file_hash']})";
+            $this->config['descriptor'] .= "{$this->config['package_name']} ({$this->config['package_file_hash']})";
         }
         return "Installed {$this->config['descriptor']}";
     }
