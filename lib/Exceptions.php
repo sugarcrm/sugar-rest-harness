@@ -289,3 +289,32 @@ class ClassIsNotDefined extends \SugarRestHarness\Exception
         parent::__construct($msg);
     }
 }
+
+
+class UploadFileNotSpecified extends \SugarRestHarness\Exception
+{
+    public function __construct($fieldName)
+    {
+        $msg = "No file path specified for $fieldName - expected a path to a file.";
+        parent::__construct($msg);
+    }
+}
+
+class UploadFileNotFound extends \SugarRestHarness\Exception
+{
+    public function __construct($fieldName, $filePath)
+    {
+        $msg = "Could not find the file at '$filePath' for field named '$fieldName'";
+        parent::__construct($msg);
+    }
+}
+
+
+class MissingPackageFileHash extends \SugarRestHarness\Exception
+{
+    public function __construct()
+    {
+        $msg = "You must set a package_file_hash config value that matches a staged package's file_hash.";
+        parent::__construct($msg);
+    }
+}

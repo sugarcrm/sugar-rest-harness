@@ -57,7 +57,7 @@ class RestConnector
     public $base_url;
     public $install_path;
     public $user_agent_string;
-    public $client_platform = '';
+    public $client_platform = 'base';
     public $client_name = '';
     public $client_id = '';
     public $client_app_version = '';
@@ -372,7 +372,7 @@ class RestConnector
                 case 'fields':
                     $value = $this->formatFields($value);
                     break;
-                    
+
                 case 'filters':
                     if (is_string($value)) {
                         $filters = explode('&', $value);
@@ -410,6 +410,12 @@ class RestConnector
             // filters has been handled above, and should not be re-added.
             if ($varName == 'filters' || $varName == 'filter_json') {
                 continue;
+            }
+
+            // if filters are set url encode the filter and its value.
+            if (strpos($varName, 'filter[') === 0) {
+                $varName = urlencode($varName);
+                $value = urlencode($value);
             }
             
             $qsPairs[] = "$varName=$value";
@@ -488,8 +494,9 @@ class RestConnector
         $data->username = $this->user_name;
         $data->password = $this->password;
         $data->client_id = $this->client_id;
-        $data->platform = $this->client_platform;
+        $data->platform = 'base';
         $data->client_secret = '';
+        /*
         $data->client_info = new \stdClass();
         $data->client_info->app = new \stdClass();
         $data->client_info->app->name = $this->client_name;
@@ -501,8 +508,9 @@ class RestConnector
         $data->client_info->browser->webkit = true;
         $data->client_info->browser->version = '537.36';
         $data->client_info->browser->userAgent = $this->user_agent_string;
+        */
         $tokenRequestPOSTDataAsString = json_encode($data);
-        
+
         return $tokenRequestPOSTDataAsString;
     }
     
@@ -588,14 +596,63 @@ class RestConnector
         
         if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, array (
-                "OAuth-Token: " . $token
+                "OAuth-Token: " . $token,
+                "Content-Type: application/json",
+            ));
+        } else {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+                "Content-Type: application/json",
             ));
         }
         
         return $ch;
     }
-    
-    
+
+
+    /**
+     * getCURLHandleForModuleLoadablePackage()
+     *
+     * Returns a curl handle for uploading a module-loadable package.
+     *
+     * @param string $url - the full URL to point to for the REST request.
+     * @param string $postData - a JSON-encoded array of name/value pairs.
+     * @param string $token - an Oauth2 token ID.
+     * @return resource - a CURL handle.
+     */
+    public function getCURLHandleForModuleLoadablePackage($url, $postData, $token)
+    {
+        $ch = $this->getCURLHandle($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+
+        // $postData will be a key => path/to/file pair, with just one pair.
+        $postData = json_decode($postData, true);
+        $keys = array_keys($postData);
+        $fieldName = array_pop($keys);
+        $filePath = $postData[$fieldName];
+
+        if (!file_exists($filePath)) {
+            throw new \SugarRestHarness\UploadFileNotFound($fieldName, $filePath);
+        }
+
+        if ($token) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+                "OAuth-Token: " . $token,
+            ));
+        } else {
+            $this->error("Tried to upload a file without auth: $url");
+        }
+
+        // this is the magic part - you have to define a new $postData variable, instead of just overwriting
+        // the $fieldName value. Otherwise you get the passed-in version of $postData
+        $postData = [
+            $fieldName => new \CURLFile($filePath, 'application/zip')
+        ];
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+
+        return $ch;
+    }
+
+
     /**
      * getCURLHandleForPUT()
      *
@@ -618,6 +675,7 @@ class RestConnector
         if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, array (
                 "OAuth-Token: " . $token,
+                "Content-Type: application/json",
             ));
         } else {
             $this->error("Tried to send a PUT request without auth: $url");
@@ -811,6 +869,10 @@ class RestConnector
                 
             case 'DELETE':
                 $ch = $this->getCURLHandleForDELETE($url, $token);
+                break;
+
+            case 'PACKAGE':
+                $ch = $this->getCURLHandleForModuleLoadablePackage($url, $postData, $token);
                 break;
         }
         

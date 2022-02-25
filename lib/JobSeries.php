@@ -180,7 +180,7 @@ abstract class JobSeries implements JobInterface
      *
      * @param string $jobClassFilePath - The path to a job class file, relative to 
      *  the Jobs directory.
-     * @return array - a hash of the results of the job.
+     * @return JobAbstract - a hash of the results of the job.
      */
     public function runJob($jobClassFilePath)
     {
