@@ -4,7 +4,28 @@ namespace SugarRestHarness\Formatters;
 
 class FormatterPackage extends FormatterBase implements FormatterInterface
 {
+    public function format()
+    {
+        $allJobsSucceeded = true;
+        foreach ($this->repository->getResults() as $job) {
+            if ($job->connector->httpReturn['HTTP Return Code'] != '200') {
+                $allJobsSucceeded = false;
+            }
+        }
+
+        if ($allJobsSucceeded) {
+            return "\nAll requests finished successfully";
+        }
+
+        return "\nSome requests failed - check results above";
+    }
+
     public function formatResults(\SugarRestHarness\JobAbstract $jobObj)
+    {
+        return '';
+    }
+
+    public function flushOutput(\SugarRestHarness\JobAbstract $jobObj)
     {
         if (count($jobObj->exceptions) > 0) {
             $exceptions = $this->formatExceptions($jobObj);
@@ -15,13 +36,14 @@ class FormatterPackage extends FormatterBase implements FormatterInterface
         }
 
         if ($jobObj->connector->httpReturn['HTTP Return Code'] == '200') {
-            return get_class($jobObj) .  " $descriptor HTTP 200";
+            $output = get_class($jobObj) .  " $descriptor HTTP 200";
         } else {
-            return implode("\n", [
+            $output = implode("\n", [
                 get_class($jobObj) .  " $descriptor FAILED HTTP " . $jobObj->connector->httpReturn['HTTP Return Code'],
                 $exceptions,
             ]);
         }
+        echo "\n$output";
     }
 
     public function formatHTTPReturn(\SugarRestHarness\JobAbstract $jobObj)

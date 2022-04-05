@@ -22,7 +22,6 @@ class UploadAndInstallPackages extends \SugarRestHarness\JobSeries
 
     public function __construct($options)
     {
-        $this->config['outputFormat'] = 'Concise';
         parent::__construct($options);
     }
 
@@ -42,7 +41,6 @@ class UploadAndInstallPackages extends \SugarRestHarness\JobSeries
 
     public function getInstalledPackages()
     {
-        $this->processOptions(['outputFormat' => 'Concise']);
         $installedPackagesJob = $this->runJob('Jobs/Examples/Packages/GetInstalledPackages.php');
         $this->installedPackages = $installedPackagesJob->results->packages;
     }
@@ -50,7 +48,6 @@ class UploadAndInstallPackages extends \SugarRestHarness\JobSeries
 
     public function getStagedPackages()
     {
-        $this->processOptions(['outputFormat' => 'Concise']);
         $stagedPackagesJob = $this->runJob('Jobs/Examples/Packages/GetStagedPackages.php');
         $this->stagedPackages = $stagedPackagesJob->results->packages;
     }
