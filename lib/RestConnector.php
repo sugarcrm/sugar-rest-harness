@@ -682,8 +682,39 @@ class RestConnector
         }
         return $ch;
     }
-    
-    
+
+
+    /**
+     * getCURLHandleForPatch
+     *
+     * Returns a CURL Handle that has all the basic options set on it that apply to PUT
+     * Requests to the REST Service.
+     *
+     * This is for the /integrate api endpoint - PATCH is the HTTP verb sugar uses for 'upserts'.
+     *
+     * @param string $url - the full URL to point to for the REST request.
+     * @param string $putData - a JSON-encoded array of name/value pairs.
+     * @param string $token - an Oauth2 token ID.
+     * @return resource - a CURL handle.
+     */
+    public function getCURLHandleForPatch($url, $data, $token)
+    {
+        $ch = $this->getCURLHandle($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        if ($token) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array (
+                "OAuth-Token: " . $token,
+                "Content-Type: application/json",
+            ));
+        } else {
+            $this->error("Tried to send a PATCH request without auth: $url");
+        }
+        return $ch;
+    }
+
+
     /**
      * getCURLHandleForDelete()
      *
@@ -873,6 +904,10 @@ class RestConnector
 
             case 'PACKAGE':
                 $ch = $this->getCURLHandleForModuleLoadablePackage($url, $postData, $token);
+                break;
+
+            case 'PATCH':
+                $ch = $this->getCURLHandleForPatch($url, $postData, $token);
                 break;
         }
         

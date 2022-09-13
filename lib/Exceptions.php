@@ -318,3 +318,23 @@ class MissingPackageFileHash extends \SugarRestHarness\Exception
         parent::__construct($msg);
     }
 }
+
+
+class PackageInstallFailed extends \SugarRestHarness\Exception
+{
+    public function __construct($packageName, $previousException)
+    {
+        $msg = "$packageName failed to install. " . $previousException->getMessage();
+        parent::__construct($msg);
+    }
+}
+
+
+class PackageUploadFailed extends \SugarRestHarness\Exception
+{
+    public function __construct($packageName, $previousException)
+    {
+        $msg = "$packageName failed to upload. " . $previousException->getMessage();
+        parent::__construct($msg);
+    }
+}

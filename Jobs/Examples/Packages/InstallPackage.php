@@ -3,6 +3,7 @@
 namespace SugarRestHarness\Jobs\Examples\Packages;
 
 use SugarRestHarness\MissingPackageFileHash;
+use SugarRestHarness\PackageInstallFailed;
 
 class InstallPackage extends \SugarRestHarness\JobAbstract implements \SugarRestHarness\JobInterface
 {
@@ -12,6 +13,13 @@ class InstallPackage extends \SugarRestHarness\JobAbstract implements \SugarRest
         $this->config['method'] = 'GET';
         $this->config['route'] = "/Administration/packages/$fileHash/install";
         parent::__construct($options);
+    }
+
+
+    public function storeException($exception)
+    {
+        parent::storeException(new PackageInstallFailed($this->config['package_name'], $exception));
+        parent::storeException($exception);
     }
 
 

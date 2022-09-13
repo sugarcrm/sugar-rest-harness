@@ -2,6 +2,7 @@
 
 namespace SugarRestHarness\Jobs\Examples\Packages;
 
+use SugarRestHarness\PackageUploadFailed;
 use SugarRestHarness\UploadFileNotFound;
 use SugarRestHarness\UploadFileNotSpecified;
 
@@ -24,6 +25,11 @@ class UploadPackage extends \SugarRestHarness\JobAbstract implements \SugarRestH
         parent::__construct($options);
     }
 
+    public function storeException($exception)
+    {
+        parent::storeException(new PackageUploadFailed($this->config['package_name'], $exception));
+        parent::storeException($exception);
+    }
 
     public function getDescriptor()
     {

@@ -142,7 +142,12 @@ class UploadAndInstallPackages extends \SugarRestHarness\JobSeries
             if (!in_array($packageName, $this->packagesToUpload)) {
                 continue;
             }
-            $this->processOptions(['post' => ['upgrade_zip' => $packageData['file_path']]]);
+            $this->processOptions([
+                'package_name' => $packageName,
+                'post' => [
+                    'upgrade_zip' => $packageData['file_path'],
+                    ]
+                ]);
             $uploadJob = $this->runJob('Jobs/Examples/Packages/UploadPackage.php');
 
             if (!$uploadJob || !empty($uploadJob->exceptions)) {
@@ -166,7 +171,7 @@ class UploadAndInstallPackages extends \SugarRestHarness\JobSeries
                     'package_name' => $packageName,
                 ]
             );
-            $this->runJob('Jobs/Examples/Packages/InstallPackage.php');
+            $installJob = $this->runJob('Jobs/Examples/Packages/InstallPackage.php');
         }
     }
 
@@ -179,9 +184,9 @@ class UploadAndInstallPackages extends \SugarRestHarness\JobSeries
 
         foreach ($this->zipFiles as $filePath) {
             $fileName = pathinfo($filePath, PATHINFO_BASENAME);
-            copy($filePath, "zip/$fileName");
+            copy($filePath, "{$this->zipTmpDir}/$fileName");
             chdir($this->zipTmpDir);
-            exec("unzip $fileName", $output, $result);
+            exec("unzip " . str_replace(' ', '\ ', $fileName), $output, $result);
             require("manifest.php");
 
             if (isset($manifest)) {
