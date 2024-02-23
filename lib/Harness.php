@@ -375,6 +375,8 @@ class Harness
      */
     public function exec($job = null)
     {
+        $start = time();
+        print("Starting\n");
         if (IsSet($this->config['h'])) {
             $help = file_get_contents('lib/help.txt');
             die($help);
@@ -405,6 +407,9 @@ class Harness
         $formattedResults = $this->repo->getFormatter()->format();
         $ext = $this->repo->getFormatter()->getFileExtension();
         $this->saveToLogFile($formattedResults, $ext);
+        $finish = time();
+        $elapsed = $finish - $start;
+        print("Finished in $elapsed seconds\n");
         
         return $formattedResults;
     }

@@ -8,7 +8,7 @@ $config = array(
     'base_url' => 'http://hoth',      // protocol + domain/i.p. address
     'install_path' => '/sc/ult',      // path to sugar install.
     'rest_dir' => '/rest',            // rest directory (usually /rest)
-    'rest_version_dir' => '/v10',     // rest version, currently /v10
+    'rest_version_dir' => '/v11.17',     // rest version, currently /v10
     'jobs_dir' => getcwd(),           // path to directory containing Jobs/
     // user_agent_string - modify at your own risk.
     'user_agent_string' => 'Mozilla/5.0 (Linux; U; Android 4.3; en-us; SAMSUNG-SGH-I747 Build/JSS15J) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30 IBM/SalesConnect 1.3.0.61',

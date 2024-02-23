@@ -494,7 +494,7 @@ class RestConnector
         $data->username = $this->user_name;
         $data->password = $this->password;
         $data->client_id = $this->client_id;
-        $data->platform = 'base';
+        $data->platform = $this->client_platform;
         $data->client_secret = '';
         /*
         $data->client_info = new \stdClass();
@@ -979,6 +979,12 @@ class RestConnector
             unset($this->httpReturn['cURL Error']);
         }
         
+    }
+
+
+    public function clearToken()
+    {
+        $this->token = '';
     }
     
     
