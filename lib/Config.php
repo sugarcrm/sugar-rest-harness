@@ -42,13 +42,16 @@ class Config
     /** @var array all options in the job's config array. */
     public $jobConfigParams = array();
     
-    /** @var string the OAuth2 token value */
+    /** @var string the OAuth2 access_token value */
     public $token = '';
+
+    /** @var string the OAuth2 refresh_token value */
+    public $refresh_token;
     
     /** @var string the ID of the currently logged in user (NOT the user_name, the id) */
     public $myId = '';
-    
-    
+
+
     /**
      * __construct()
      *
@@ -447,8 +450,8 @@ class Config
         $this->processArgv();
         $this->importConfigFile($this->getConfigFileName());
         $configParams = array();
-        $configParams = array_merge($this->configFileOptions, $this->commandLineOptions, array('token' => $this->token));
-        return $configParams;
+        //return array_merge($this->configFileOptions, $this->commandLineOptions, array('token' => $this->token));
+        return array_merge($this->configFileOptions, $this->commandLineOptions);
     }
     
     
@@ -500,6 +503,18 @@ class Config
     public function getToken()
     {
         return $this->token;
+    }
+
+
+    public function setRefreshToken($refreshToken)
+    {
+        $this->refresh_token = $refreshToken;
+    }
+
+
+    public function getRefreshToken()
+    {
+        return $this->refresh_token;
     }
     
     

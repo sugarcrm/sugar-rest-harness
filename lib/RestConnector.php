@@ -17,6 +17,7 @@ namespace SugarRestHarness;
 class RestConnector
 {
     private $token = false;
+    private $refresh_token = false;
     public $requiredConfigFields = array(
         'user_name',
         'password',
@@ -26,27 +27,7 @@ class RestConnector
         'user_agent_string',
         'client_id',
     );
-    
-    public $queryStringConfigVars = array(
-        'order_by', 
-        'favorites', 
-        'max_num',
-        'module_name',
-        'my_items',
-        'q',
-        'module_list',
-        'term',
-        'offset',
-        'filters',
-        'filter_json',
-        'view',
-        'view_name',
-        'type_filter',
-        'module_filter',
-        'platform',
-        'fields',
-    );
-    
+
     public $module;
     public $bean_id;
     public $fields;
@@ -151,7 +132,6 @@ class RestConnector
      * of the named property of this class. I.E., if $this->module = 'Contacts', then
      * '$module' will be replaced by 'Contacts' when the route is constructed.
      *
-     * @param none
      * @return void
      */
     public function generateRouteMaps()
@@ -161,6 +141,7 @@ class RestConnector
         }
         
         $coreRouteMapPath = \SugarRestHarness\Harness::getAbsolutePath('lib/routeMap.php');
+        $routeMap = null;
         require($coreRouteMapPath);
         $this->routeMaps = $routeMap;
         
@@ -254,13 +235,13 @@ class RestConnector
     {
         $queryString = '';
         
-        if (IsSet($this->url)) {
-            $this->msg("REST Service URL is {$this->url}");
+        if (!empty($this->url)) {
+            $this->msg("REST Service URL is $this->url");
             return $this->url;
         }
         
         if (empty($route)) {
-            $this->error("Route could not be determined for {$this->jobClass}");
+            $this->error("Route could not be determined for $this->jobClass");
             return '';
         }
         
@@ -283,16 +264,18 @@ class RestConnector
         $this->msg("REST Service URL is $url");
         return $url;
     }
-    
-    
+
+
     /**
      * getRoute()
      *
-     * Returns a path for the REST request based on job config values, which are 
+     * Returns a path for the REST request based on job config values, which are
      * translated to properties of this class. These values
      * may have been overwritten by command line arguments.
      *
      * @return string - a path for a REST request.
+     * @throws MissingRouteMap
+     * @throws MissingRequiredRouteMapComponents
      */
     public function getRoute()
     {
@@ -487,31 +470,24 @@ class RestConnector
      *
      * @return string - a JSON encoded string of nested objects.
      */
-    public function getTokenPostData()
+    public function getTokenPostData($grant_type = 'password')
     {
         $data = new \stdClass();
-        $data->grant_type = 'password';
-        $data->username = $this->user_name;
-        $data->password = $this->password;
+        $data->grant_type = $grant_type;
         $data->client_id = $this->client_id;
         $data->platform = $this->client_platform;
         $data->client_secret = '';
-        /*
-        $data->client_info = new \stdClass();
-        $data->client_info->app = new \stdClass();
-        $data->client_info->app->name = $this->client_name;
-        $data->client_info->app->isNative = false;
-        $data->client_info->app->version = $this->client_app_version;
-        $data->client_info->app->build = '115';
-        $data->client_info->device = new \stdClass();
-        $data->client_info->browser = new \stdClass();
-        $data->client_info->browser->webkit = true;
-        $data->client_info->browser->version = '537.36';
-        $data->client_info->browser->userAgent = $this->user_agent_string;
-        */
-        $tokenRequestPOSTDataAsString = json_encode($data);
 
-        return $tokenRequestPOSTDataAsString;
+        if ($grant_type == 'password') {
+            $data->username = $this->user_name;
+            $data->password = $this->password;
+        }
+
+        if ($grant_type == 'refresh_token') {
+            $data->refresh_token = $this->refresh_token;
+        }
+
+        return json_encode($data);
     }
     
     
@@ -745,10 +721,11 @@ class RestConnector
      * getToken()
      *
      * Gets an Oauth2 token from our REST service based on our config data.
+     * Also stores a refresh_token for use in long-running sessions.
      *
      * @return string - an Oauth2 auth token ID.
      */
-    public function getToken()
+    public function getToken($grant_type = 'password')
     {
         $token = \SugarRestHarness\Config::getInstance()->getToken();
         if (!empty($token)) {
@@ -757,32 +734,65 @@ class RestConnector
 
         $url = $this->getURL('/oauth2/token');
         $this->msg("getting token from $url for {$this->user_name}");
-        $data = $this->getTokenPostData();
+        $data = $this->getTokenPostData($grant_type);
         $ch = $this->getCURLHandleForPOST($url, $data);
         curl_setopt($ch, CURLOPT_VERBOSE, false);
-        $token = curl_exec($ch);
+        $rawResponse = curl_exec($ch);
         $this->collecthttpReturn($ch);
-        $hash = json_decode($token);
+        $response = json_decode($rawResponse);
         curl_close($ch);
         
-        if (!empty($token) && is_object($hash) && property_exists($hash, 'access_token')) {
-            $this->msg("Received token {$hash->access_token}");
-            $this->token = $hash->access_token;
-            \SugarRestHarness\Config::getInstance()->setToken($hash->access_token);
-            return $hash->access_token;
+        if (!empty($rawResponse) && is_object($response) && property_exists($response, 'access_token')) {
+            $this->msg("Received token {$response->access_token}");
+            $this->token = $response->access_token;
+            $this->refresh_token = $response->refresh_token;
+            \SugarRestHarness\Config::getInstance()->setToken($response->access_token);
+            \SugarRestHarness\Config::getInstance()->setRefreshToken($response->refresh_token);
+            return $response->access_token;
         } else {
             $this->error("Did not receive an access token from OAuth2 request! Bad password?");
-            if (is_array($hash)) {
-                foreach ($hash as $index => $msg) {
+            if (is_array($response)) {
+                foreach ($response as $index => $msg) {
                     $this->error("$index: $msg");
                 }
             } else {
-                $this->error($hash);
+                $this->error($response);
             }
             $errorData = array($this->msgs, $this->errors, $this->httpReturn);
             throw new \SugarRestHarness\LoginFailure($this->user_name, $url, $errorData);
-            return '';
         }
+    }
+
+
+    /**
+     * refreshAccessToken()
+     *
+     * If the access token expires, this method should be called to refresh it using the refresh_token
+     * property set in getToken()
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function refreshAccessToken()
+    {
+        $this->clearToken();
+        $this->refresh_token = \SugarRestHarness\Config::getInstance()->getRefreshToken();
+
+        if (empty($this->refresh_token)) {
+            throw new \SugarRestHarness\Exception("Cannot refresh access token when refresh_token hasn't been set");
+        }
+
+        $this->url = '';
+        try {
+            $this->getToken('refresh_token');
+        } catch (\SugarRestHarness\LoginFailure $e) {
+            die($e->getFormattedOutput());
+        }
+
+        if (!empty($this->token)) {
+            return true;
+        }
+        return false;
     }
     
     
@@ -916,7 +926,16 @@ class RestConnector
             $this->collecthttpReturn($ch);
             curl_close($ch);
             if (!$this->receivedExpectedHTTPReturnCode()) {
-                throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $this->expectedHTTPReturnCode, $results);
+                if ($this->httpReturn['HTTP Return Code'] == '401') {
+                    // assume access token has expired, attempt refresh.
+                    if ($this->refreshAccessToken()) {
+                        return $this->sendRequest($url, $type, $data);
+                    } else {
+                        throw new \SugarRestHarness\ServerError("Auth failure - assumed access token expired and attempted to refresh access_token, but could not.\n" . $this->httpReturn['HTTP Return Code'], $this->expectedHTTPReturnCode, $results);
+                    }
+                } else {
+                    throw new \SugarRestHarness\ServerError($this->httpReturn['HTTP Return Code'], $this->expectedHTTPReturnCode, $results);
+                }
             }
             return $results;
         } else {
@@ -985,6 +1004,7 @@ class RestConnector
     public function clearToken()
     {
         $this->token = '';
+        \SugarRestHarness\Config::getInstance()->setToken('', true);
     }
     
     
